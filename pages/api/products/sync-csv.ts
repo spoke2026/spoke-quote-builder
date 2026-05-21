@@ -84,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { error, count } = await supabase
       .from('products')
-      .upsert(dbRows, { onConflict: 'stock_code', ignoreDuplicates: false, count: 'exact' });
+      .insert(dbRows);
 
     if (error) {
       console.error('Supabase upsert error:', error);

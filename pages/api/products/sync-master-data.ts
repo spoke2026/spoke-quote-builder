@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!asColourRows.length) {
       return res.status(400).json({
-        error: `No AS Colour rows found. Found suppliers: ${[...new Set(masterRows.map(r => r['Supplier']))].join(', ')}`
+        error: `No AS Colour rows found. Found suppliers: ${masterRows.map(r => r['Supplier']).filter((s, i, a) => a.indexOf(s) === i).join(', ')}`
       });
     }
 

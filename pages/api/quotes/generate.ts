@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } as NormalisedProduct,
   }));
 
-  const html = generateQuoteHTML(config, lineItems, SPOKE_LOGO_B64);
+  const html = generateQuoteHTML(config, lineItems);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="spoke-quote-${quote.customer_name.toLowerCase().replace(/\s+/g,'-')}.html"`);

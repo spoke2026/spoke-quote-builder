@@ -31,15 +31,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .trim()
       .slice(0, 8000);
 
-    const imgMatches = html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
     const allImages: string[] = [];
-    for (const match of imgMatches) {
-      const src = match[1];
-      if (src && !src.includes('data:') && !src.includes('logo') && !src.includes('icon') && !src.includes('banner')) {
-        const fullUrl = src.startsWith('http') ? src : new URL(src, url).href;
-        if (!allImages.includes(fullUrl)) allImages.push(fullUrl);
-      }
-    }
+const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+let imgMatch;
+while ((imgMatch = imgRegex.exec(html)) !== null) {
+  const src = imgMatch[1];
+  if (src && !src.includes('data:') && !src.includes('logo') && !src.includes('icon') && !src.includes('banner')) {
+    const fullUrl = src.startsWith('http') ? src : new URL(src, url).href;
+    if (!allImages.includes(fullUrl)) allImages.push(fullUrl);
+  }
+}
 
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

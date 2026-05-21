@@ -79,13 +79,13 @@ for (const r of asColourRows) {
       if (r['Size Range']) updateData.size = String(r['Size Range']).trim();
       if (r['Colour Options']) updateData.colour = String(r['Colour Options']).trim();
 
-      const { count } = await supabase
+      const { data: updatedRows } = await supabase
         .from('products')
         .update(updateData)
         .eq('supplier_sku', supplierSku)
-        .select('id', { count: 'exact', head: true });
+        .select('id');
 
-      if ((count ?? 0) > 0) {
+      if (updatedRows && updatedRows.length > 0) {
         updated++;
       } else {
         await supabase.from('products').insert({

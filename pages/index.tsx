@@ -283,27 +283,25 @@ export default function QuoteBuilder() {
   }
 
   // ── Sync CSV ───────────────────────────────────────────────────────────────
-  async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setSyncMsg('Uploading and syncing…');
-
-    const text = await file.text();
-
-    try {
-      const res = await fetch('/api/products/sync-csv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csvText: text }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setSyncMsg(`✓ Synced ${data.upserted} products`);
-      doSearch(searchQuery);
-    } catch (err: unknown) {
-      setSyncMsg('Error: ' + (err instanceof Error ? err.message : String(err)));
-    }
+async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setSyncMsg('Uploading and syncing…');
+  const text = await file.text();
+  try {
+    const res = await fetch('/api/products/sync-csv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: text,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    setSyncMsg(`✓ Synced ${data.upserted} products`);
+    doSearch(searchQuery);
+  } catch (err: unknown) {
+    setSyncMsg('Error: ' + (err instanceof Error ? err.message : String(err)));
   }
+}
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -381,7 +379,27 @@ export default function QuoteBuilder() {
                 <label className="sync-label">Sync AS Colour CSV</label>
                 <input type="file" accept=".csv,.xlsx,.xls" onChange={handleCSVUpload} />
                 {syncMsg && <p className="hint" style={{ color: syncMsg.startsWith('✓') ? '#BEDA81' : '#ff9999' }}>{syncMsg}</p>}
-              </div>
+              </div><div className="sync-section" style={{marginTop: '12px'}}>
+  <label className="sync-label">Sync Pricing from Google Sheets</label>
+  <button 
+    className="btn-primary" 
+    style={{fontSize: '11px', padding: '8px 12px'}}
+    onClick={async () => {
+      setSyncMsg('Syncing pricing from Google Sheets…');
+      try {
+        const res = await fetch('/api/products/sync-master-data', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        setSyncMsg(`✓ Synced pricing for ${data.upserted} products`);
+        doSearch(searchQuery);
+      } catch (err: unknown) {
+        setSyncMsg('Error: ' + (err instanceof Error ? err.message : String(err)));
+      }
+    }}
+  >
+    Sync from Google Sheets
+  </button>
+</div>
             </div>
           )}
 

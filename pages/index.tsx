@@ -287,13 +287,13 @@ async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
   const file = e.target.files?.[0];
   if (!file) return;
   setSyncMsg('Uploading and syncing…');
-  const text = await file.text();
-  try {
-    const res = await fetch('/api/products/sync-csv', {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: text,
-    });
+    try {
+    const formData = new FormData();
+formData.append('csv', file);
+const res = await fetch('/api/products/sync-csv', {
+  method: 'POST',
+  body: formData,
+});
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
     setSyncMsg(`✓ Synced ${data.upserted} products`);

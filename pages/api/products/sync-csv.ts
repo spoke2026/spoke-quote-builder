@@ -4,7 +4,7 @@ import { mapStockItemRow, mapASColourRow, normaliseHeader } from '@/lib/products
 import Papa from 'papaparse';
 
 export const config = {
-  api: { bodyParser: { sizeLimit: '50mb', type: '*/*' } },
+  api: { bodyParser: false },
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -17,10 +17,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const response = await fetch(req.body.csvUrl);
       if (!response.ok) return res.status(400).json({ error: `Failed to fetch CSV` });
       csvText = await response.text();
-    } else if (typeof req.body === 'string') {
-      csvText = req.body;
-    } else if (req.body?.csvText) {
-      csvText = req.body.csvText;
+    } else {
+      // Read raw body stream
+      csvText = await new Promise<string>((resolve, reject) => {
+        let data = '';
+        req.on('data', (chunk: Buffer) => { data += chunk.toString('utf8'); });
+        req.on('end', () => resolve(data));
+        req.on('error', reject);
+      });
     }
 
     if (!csvText) return res.status(400).json({ error: 'No CSV data provided' });

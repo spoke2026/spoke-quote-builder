@@ -20,7 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const accessToken = await getGoogleAccessToken(email, key);
-
       const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/Sheet1?majorDimension=ROWS`;
       const sheetsRes = await fetch(sheetsUrl, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -33,10 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const json = await sheetsRes.json();
       const rows: string[][] = json.values ?? [];
-      if (rows.length < 2) return res.status(400).json({ error: 'No data rows found in Google Sheet' });
+      if (rows.length < 3) return res.status(400).json({ error: 'No data rows found in Google Sheet' });
 
-      const headers = rows[0].map(h => h.trim());
-      masterRows = rows.slice(1).map(row => {
+      const headers = rows[1].map(h => h.trim());
+      masterRows = rows.slice(2).map(row => {
         const obj: Record<string, string> = {};
         headers.forEach((h, i) => { obj[h] = row[i] ?? ''; });
         return obj;
@@ -45,19 +44,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!masterRows.length) return res.status(400).json({ error: 'No master data rows' });
 
-    const asColourRows = masterRows.filter(r => {
-      const supplier = String(r['Supplier'] ?? '').toLowerCase();
-      return supplier.includes('as colour') || supplier.includes('ascolour') || supplier.includes('as color');
-    });
+    const validRows = masterRows.filter(r => String(r['Supplier SKU'] ?? '').trim().length > 0);
 
-    if (!asColourRows.length) {
-      return res.status(400).json({
-        error: `No AS Colour rows found. Found suppliers: ${masterRows.map(r => r['Supplier']).filter((s, i, a) => a.indexOf(s) === i).join(', ')}`
-      });
+    if (!validRows.length) {
+      return res.status(400).json({ error: 'No valid rows found in Google Sheet' });
     }
 
     let updated = 0;
-for (const r of asColourRows) {
+for (const r of validRows) {
       const supplierSku = String(r['Supplier SKU'] ?? '').trim();
       if (!supplierSku) continue;
 
@@ -91,7 +85,7 @@ for (const r of asColourRows) {
         await supabase.from('products').insert({
           supplier_sku: supplierSku,
           spoke_sku:    String(r['Spoke SKU'] ?? '').trim(),
-          supplier:     'AS Colour',
+          supplier:     String(r['Supplier'] ?? '').trim(),
           name:         String(r['Spoke Description'] || r['Description'] || '').trim(),
           size:         String(r['Size Range'] ?? '').trim(),
           colour:       String(r['Colour Options'] ?? '').trim(),
@@ -113,7 +107,7 @@ for (const r of asColourRows) {
     return res.status(200).json({
       success: true,
       upserted: updated,
-      total: asColourRows.length,
+      total: validRows.length,
     });
 
   } catch (err: unknown) {
@@ -122,13 +116,12 @@ for (const r of asColourRows) {
     return res.status(500).json({ error: message });
   }
 }
-
 async function getGoogleAccessToken(email: string, privateKey: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const header  = { alg: 'RS256', typ: 'JWT' };
   const payload = {
     iss:   email,
-    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
     aud:   'https://oauth2.googleapis.com/token',
     exp:   now + 3600,
     iat:   now,
@@ -153,8 +146,6 @@ async function getGoogleAccessToken(email: string, privateKey: string): Promise<
   });
 
   const tokenJson = await tokenRes.json();
-  if (!tokenJson.access_token) {
-    throw new Error(`Failed to get Google access token: ${JSON.stringify(tokenJson)}`);
-  }
+  if (!tokenJson.access_token) throw new Error(`Failed to get token: ${JSON.stringify(tokenJson)}`);
   return tokenJson.access_token;
 }

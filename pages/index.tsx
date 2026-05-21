@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
+const ProductFromUrlModal = dynamic(() => import('@/components/ProductFromUrlModal'), { ssr: false });
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,6 +94,7 @@ export default function QuoteBuilder() {
 
   // UI state
   const [saving, setSaving] = useState(false);
+  const [showUrlModal, setShowUrlModal] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings'>('products');
 
@@ -428,6 +431,14 @@ async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
     Sync from Google Sheets
   </button>
 </div>
+
+<div className="sync-section" style={{marginTop: '12px'}}>
+  <label className="sync-label">Add product from URL</label>
+  <button className="btn-primary" style={{fontSize: '11px', padding: '8px 12px'}}
+    onClick={() => setShowUrlModal(true)}>
+    + Add from URL
+  </button>
+</div>
             </div>
           )}
 
@@ -662,7 +673,12 @@ async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
           )}
         </section>
       </div>
-
+{showUrlModal && (
+  <ProductFromUrlModal
+    onClose={() => setShowUrlModal(false)}
+    onSaved={() => { doSearch(searchQuery); setSyncMsg('✓ Product saved!'); }}
+  />
+)}
       <style jsx global>{`
         *, *::before, *::after { box-sizing: border-box; }
 

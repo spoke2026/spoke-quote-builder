@@ -30,9 +30,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Option 2: raw CSV text in body
-    if (req.body?.csvText) {
-      csvText = req.body.csvText;
-    }
+    if (typeof req.body === 'string') {
+  csvText = req.body;
+} else if (req.body?.csvText) {
+  csvText = req.body.csvText;
+}
 
     if (!csvText) {
       return res.status(400).json({ error: 'Provide csvUrl or csvText in request body' });
@@ -100,3 +102,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: message });
   }
 }
+export const config = {
+  api: { bodyParser: { sizeLimit: '10mb' } },
+};

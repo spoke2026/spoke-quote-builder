@@ -70,7 +70,7 @@ export function mapStockItemRow(row: Record<string, string>, index: number): Nor
     get('imageBackURL'),
   ].map(cleanImageUrl).filter(Boolean);
 
-  const uniqueImages = [...new Set(imageUrls)];
+  const uniqueImages = imageUrls.filter((img, idx) => imageUrls.indexOf(img) === idx);
   const stockCode = get('stockCode');
   const styleCode = get('styleCode');
 

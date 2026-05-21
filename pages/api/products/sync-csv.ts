@@ -18,13 +18,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!response.ok) return res.status(400).json({ error: `Failed to fetch CSV` });
       csvText = await response.text();
     } else {
-      // Read raw body stream
-      csvText = await new Promise<string>((resolve, reject) => {
-        let data = '';
-        req.on('data', (chunk: Buffer) => { data += chunk.toString('utf8'); });
-        req.on('end', () => resolve(data));
+      const chunks: Buffer[] = [];
+      await new Promise<void>((resolve, reject) => {
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', resolve);
         req.on('error', reject);
       });
+      csvText = Buffer.concat(chunks).toString('utf8');
     }
 
     if (!csvText) return res.status(400).json({ error: 'No CSV data provided' });

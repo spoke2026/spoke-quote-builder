@@ -134,7 +134,7 @@ export function mapASColourRow(row: Record<string, string>, index: number): Norm
     stockCode,
     styleCode,
     spokeSkU: '',
-    supplierSku: stockCode,
+    supplierSku: styleCode || stockCode,
     supplier: 'AS Colour',
     name,
     description: '',

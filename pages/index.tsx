@@ -286,23 +286,51 @@ export default function QuoteBuilder() {
 async function handleCSVUpload(e: React.ChangeEvent<HTMLInputElement>) {
   const file = e.target.files?.[0];
   if (!file) return;
-  setSyncMsg('Uploading and syncing…');
-    try {
-    const formData = new FormData();
-formData.append('csv', file);
-const res = await fetch('/api/products/sync-csv', {
-  method: 'POST',
-  body: formData,
-});
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    setSyncMsg(`✓ Synced ${data.upserted} products`);
+  setSyncMsg('Reading CSV...');
+
+  try {
+    const text = await file.text();
+    
+    // Parse CSV in browser using Papa
+    const Papa = (await import('papaparse')).default;
+    const { data } = Papa.parse<Record<string, string>>(text, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (h) => h.trim(),
+    });
+
+    if (!data.length) {
+      setSyncMsg('Error: No rows found in CSV');
+      return;
+    }
+
+    setSyncMsg(`Parsed ${data.length} rows, uploading...`);
+
+    // Send in chunks of 200 rows at a time
+    const chunkSize = 200;
+    let totalSynced = 0;
+
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      setSyncMsg(`Uploading rows ${i + 1}–${Math.min(i + chunkSize, data.length)} of ${data.length}...`);
+      
+      const res = await fetch('/api/products/sync-csv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows: chunk, isFirst: i === 0 }),
+      });
+      
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+      totalSynced = result.total ?? (i + chunk.length);
+    }
+
+    setSyncMsg(`✓ Synced ${totalSynced} products`);
     doSearch(searchQuery);
   } catch (err: unknown) {
     setSyncMsg('Error: ' + (err instanceof Error ? err.message : String(err)));
   }
 }
-
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <>

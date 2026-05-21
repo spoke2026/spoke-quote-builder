@@ -1,66 +1,45 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/lib/supabase';
 import { mapStockItemRow, mapASColourRow, normaliseHeader } from '@/lib/products';
-import Papa from 'papaparse';
 
 export const config = {
-  api: { bodyParser: false },
+  api: { bodyParser: { sizeLimit: '10mb' } },
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    let csvText: string | null = null;
+    const { rows, isFirst } = req.body;
 
-    if (req.body?.csvUrl) {
-      const response = await fetch(req.body.csvUrl);
-      if (!response.ok) return res.status(400).json({ error: `Failed to fetch CSV` });
-      csvText = await response.text();
-    } else {
-      const chunks: Buffer[] = [];
-      await new Promise<void>((resolve, reject) => {
-        req.on('data', (chunk: Buffer) => chunks.push(chunk));
-        req.on('end', resolve);
-        req.on('error', reject);
-      });
-      csvText = Buffer.concat(chunks).toString('utf8');
+    if (!Array.isArray(rows) || !rows.length) {
+      return res.status(400).json({ error: 'No rows provided' });
     }
 
-    if (!csvText) return res.status(400).json({ error: 'No CSV data provided' });
-
-    const { data, errors } = Papa.parse<Record<string, string>>(csvText, {
-      header: true,
-      skipEmptyLines: true,
-      transformHeader: (h) => h.trim(),
-    });
-
-    if (errors.length > 0) console.warn('CSV parse warnings:', errors.slice(0, 3));
-    if (!data.length) return res.status(400).json({ error: 'No rows found in CSV' });
-
-    const headers = Object.keys(data[0] || {});
+    // Detect CSV type
+    const headers = Object.keys(rows[0] || {});
     const isStockItems = headers.includes('stockCode') && headers.includes('styleName');
 
-    const products = data.map((row, i) => {
+    const products = rows.map((row: Record<string, string>, i: number) => {
       if (isStockItems) return mapStockItemRow(row, i);
       const normRow: Record<string, string> = {};
       Object.keys(row).forEach(k => { normRow[normaliseHeader(k)] = row[k]; normRow[k] = row[k]; });
       return mapASColourRow(normRow, i);
-    }).filter(p => p.name || p.stockCode);
-const styleMap = new Map<string, {
+    }).filter((p) => p.name || p.stockCode);
+
+    // Group by styleCode
+    const styleMap = new Map<string, {
       stockCode: string;
       styleCode: string;
       name: string;
       description: string;
       shortDescription: string;
-      colour: string;
-      size: string;
       category: string;
       composition: string;
       t1Price: number;
       imageUrls: string[];
-      sizes: Set<string>;
-      colours: Set<string>;
+      sizes: string[];
+      colours: string[];
     }>();
 
     for (const p of products) {
@@ -72,22 +51,20 @@ const styleMap = new Map<string, {
           name: p.name,
           description: p.description,
           shortDescription: p.shortDescription,
-          colour: p.colour,
-          size: p.size,
           category: p.category,
           composition: p.composition,
           t1Price: p.t1Price,
           imageUrls: [...p.imageUrls],
-          sizes: new Set([p.size].filter(Boolean)),
-          colours: new Set([p.colour].filter(Boolean)),
+          sizes: p.size ? [p.size] : [],
+          colours: p.colour ? [p.colour] : [],
         });
       } else {
         const existing = styleMap.get(key)!;
         for (const img of p.imageUrls) {
           if (!existing.imageUrls.includes(img)) existing.imageUrls.push(img);
         }
-        if (p.size) existing.sizes.add(p.size);
-        if (p.colour) existing.colours.add(p.colour);
+        if (p.size && !existing.sizes.includes(p.size)) existing.sizes.push(p.size);
+        if (p.colour && !existing.colours.includes(p.colour)) existing.colours.push(p.colour);
       }
     }
 
@@ -98,8 +75,8 @@ const styleMap = new Map<string, {
       name:              p.name,
       description:       p.description,
       short_description: p.shortDescription,
-      colour:            Array.from(p.colours).join(', '),
-      size:              Array.from(p.sizes).join(', '),
+      colour:            p.colours.join(', '),
+      size:              p.sizes.join(', '),
       category:          p.category,
       composition:       p.composition,
       supplier:          'AS Colour',
@@ -107,34 +84,24 @@ const styleMap = new Map<string, {
       image_urls:        p.imageUrls.slice(0, 10),
     }));
 
-    const { error: deleteError } = await supabase
-      .from('products')
-      .delete()
-      .eq('supplier', 'AS Colour');
-
-    if (deleteError) {
-      console.error('Delete error:', deleteError);
-      return res.status(500).json({ error: deleteError.message });
+    // On first chunk, delete existing AS Colour products
+    if (isFirst) {
+      await supabase.from('products').delete().eq('supplier', 'AS Colour');
     }
 
-    const chunkSize = 50;
-    let totalInserted = 0;
-
-    for (let i = 0; i < dbRows.length; i += chunkSize) {
-      const chunk = dbRows.slice(i, i + chunkSize);
-      const { error } = await supabase.from('products').insert(chunk);
+    // Insert chunk
+    if (dbRows.length > 0) {
+      const { error } = await supabase.from('products').insert(dbRows);
       if (error) {
-        console.error('Insert error at chunk', i, error);
+        console.error('Insert error:', error);
         return res.status(500).json({ error: error.message });
       }
-      totalInserted += chunk.length;
     }
 
     return res.status(200).json({
       success: true,
-      upserted: totalInserted,
+      upserted: dbRows.length,
       total: dbRows.length,
-      type: isStockItems ? 'StockItems' : 'ProductVariants',
     });
 
   } catch (err: unknown) {

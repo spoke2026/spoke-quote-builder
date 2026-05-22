@@ -312,7 +312,11 @@ export default function QuoteBuilder() {
   return (
     <>
       <Head>
-
+        <title>Spoke Quote Builder</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
       <div className="app">
         <aside className="panel">
           <div className="panel-header">

@@ -611,7 +611,7 @@ export default function QuoteBuilder() {
         .search-input::placeholder { color: rgba(255,255,255,.35); }
         .search-spinner { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--zest); animation: spin 1s linear infinite; font-size: 16px; }
         @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
-        .product-list { display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 200px; }
+        .product-list { display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 200px; max-height: 420px; overflow-y: auto; }
         .product-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 4px; padding: 8px 10px; }
         .product-row:hover { background: rgba(255,255,255,.1); }
         .product-thumb { width: 48px; height: 48px; object-fit: contain; background: rgba(255,255,255,.1); border-radius: 3px; flex-shrink: 0; }

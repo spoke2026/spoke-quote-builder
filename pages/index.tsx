@@ -410,7 +410,8 @@ export default function QuoteBuilder() {
                       <div className="qty-row">
                         <label>Qty
                           <input type="number" min="0" value={li.qty}
-                            onChange={e => updateQty(idx, Number(e.target.value))} />
+                            onChange={e => updateQty(idx, Number(e.target.value))}
+                            onBlur={e => updateQty(idx, Number(e.target.value))}
                         </label>
                         <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
                       </div>

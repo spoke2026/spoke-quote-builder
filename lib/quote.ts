@@ -27,6 +27,12 @@ export interface LogoPosition {
   price: number;
 }
 
+export interface LogoPosition {
+  id: string;
+  position: string;
+  price: number;
+}
+
 export interface QuoteLineItem {
   product: NormalisedProduct;
   qty: number;
@@ -118,6 +124,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
 
   // Product cards
   const cards = items.map((item, i) => {
+    const logos = Array.isArray(item.logos) ? item.logos : [];
     const images = item.product.imageUrls ?? [];
     const mainSrc = images[0] ?? placeholderSvg();
     const thumbs = images.length > 1
@@ -153,7 +160,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
           <div><span>Size</span><strong>${esc(item.product.size)}</strong></div>
           <div><span>Colour</span><strong>${esc(item.product.colour)}</strong></div>
           <div><span>Unit price</span><strong>${formatMoney(getPrice(item.product, config.tier))}</strong></div>
-          <div><span>Logo price</span><strong>${formatMoney(config.logoUnitPrice)}/logo</strong></div>
+          <div><span>Logo positions</span><strong>${logos.length > 0 ? logos.map(l => `${esc(l.position)}: ${formatMoney(l.price)}`).join(', ') : 'None'}</strong></div>
         </div>
         ${featureHtml}
         ${composition ? `<p class="note"><strong>Composition:</strong> ${esc(composition)}</p>` : ''}

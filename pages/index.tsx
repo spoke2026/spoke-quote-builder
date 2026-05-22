@@ -320,7 +320,7 @@ export default function QuoteBuilder() {
       <div className="app">
         <aside className="panel">
           <div className="panel-header">
-            <div className="spoke-wordmark">spoke</div>
+            <img src="/spoke-logo-landscape-white.png" alt="Spoke" className="spoke-wordmark" />
             <div className="panel-subtitle">Quote Builder</div>
           </div>
 
@@ -615,7 +615,7 @@ export default function QuoteBuilder() {
           ) : (
             <div className="preview-content">
               <div className="preview-header">
-                <div className="preview-logo">spoke</div>
+                <img src="/spoke-logo-landscape-white.png" alt="Spoke" className="preview-logo" />
                 <div className="preview-meta"><strong>{customerName}</strong> · {title} · {tier} pricing</div>
               </div>
               <div className="preview-cards">
@@ -693,7 +693,7 @@ export default function QuoteBuilder() {
         .app { display: grid; grid-template-columns: 420px 1fr; min-height: 100vh; }
         .panel { background: var(--mineral); color: #fff; display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; overflow: hidden; }
         .panel-header { padding: 22px 24px 0; flex-shrink: 0; }
-        .spoke-wordmark { font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-size: 32px; color: var(--zest); letter-spacing: -.02em; line-height: 1; margin-bottom: 2px; }
+        .spoke-wordmark { height: 32px; width: auto; display: block; margin-bottom: 2px; }
         .panel-subtitle { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 16px; }
         .tab-bar { display: flex; border-bottom: 1px solid rgba(255,255,255,.12); flex-shrink: 0; padding: 0 24px; }
         .tab-btn { background: none; border: none; color: rgba(255,255,255,.5); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; cursor: pointer; border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; margin-bottom: -1px; }
@@ -775,7 +775,7 @@ export default function QuoteBuilder() {
         .preview-empty h2 { font-family: 'DM Serif Display', Georgia, serif; font-style: italic; color: var(--mineral); font-size: 28px; margin: 0 0 12px; }
         .preview-content { display: flex; flex-direction: column; gap: 20px; }
         .preview-header { background: var(--mineral); color: #fff; border-radius: 6px; padding: 16px 24px; display: flex; align-items: center; gap: 16px; }
-        .preview-logo { font-family: 'DM Serif Display', Georgia, serif; font-style: italic; color: var(--zest); font-size: 22px; }
+        .preview-logo { height: 22px; width: auto; display: block; }
         .preview-meta { font-size: 13px; color: rgba(255,255,255,.7); }
         .preview-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
         .preview-card { background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }

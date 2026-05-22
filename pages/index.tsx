@@ -524,10 +524,23 @@ export default function QuoteBuilder() {
                       setSetupFee(quote.setup_fee ?? '');
                       setCustomerLogo(quote.customer_logo_data_url ?? '');
                       setHeroImage(quote.hero_image_data_url ?? '');
-                      setLineItems((quote.line_items ?? []).map((li: any) => ({
-                        product: li.product_snapshot,
-                        qty: li.qty,
-                        logos: li.logos ?? [],
+                      setLineItems((quote.line_items ?? []).map((li: any) => {
+  const s = li.product_snapshot;
+  return {
+    qty: li.qty,
+    logos: li.logos ?? [],
+    product: {
+      ...s,
+      t1_price: s.t1_price ?? s.t1Price ?? 0,
+      t2_price: s.t2_price ?? s.t2Price ?? 0,
+      t3_price: s.t3_price ?? s.t3Price ?? 0,
+      stock_code: s.stock_code ?? s.stockCode ?? '',
+      spoke_sku: s.spoke_sku ?? s.spokeSkU ?? '',
+      supplier_sku: s.supplier_sku ?? s.supplierSku ?? '',
+      image_urls: s.image_urls ?? s.imageUrls ?? [],
+    },
+  };
+}));
                       })));
                       setShareLink(`${window.location.origin}/api/quotes/share/${quote.share_token}`);
                       setActiveTab('selected');

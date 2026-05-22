@@ -185,8 +185,9 @@ export default function QuoteBuilder() {
   const totals = (() => {
     let prodSub = 0, logoSub = 0;
     lineItems.forEach(li => {
-      prodSub += li.qty * getPrice(li.product, tier);
-      logoSub += (Number(li.qty) || 0) * li.logos.reduce((sum, l) => sum + (Number(l.price) || 0), 0);
+      prodSub += (Number(li.qty) || 0) * getPrice(li.product, tier);
+      const logos = Array.isArray(li.logos) ? li.logos : [];
+      logoSub += (Number(li.qty) || 0) * logos.reduce((sum, l) => sum + (Number(l.price) || 0), 0);
     });
     const grand = prodSub + logoSub;
     return { prodSub, logoSub, grand, gst: grand * 0.15, incl: grand * 1.15 };
@@ -201,6 +202,8 @@ export default function QuoteBuilder() {
         intro_copy: introCopy, contact_email: contactEmail, contact_phone: contactPhone,
         output_type: outputType, pricing_tier: tier, logo_unit_price: 0,
         setup_fee: setupFee, created_by: 'sales',
+        customer_logo_data_url: customerLogo ?? null,
+        hero_image_data_url: heroImage ?? null,
         line_items: lineItems.map(li => ({
           qty: li.qty,
           logos: li.logos,

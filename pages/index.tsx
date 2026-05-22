@@ -801,6 +801,3 @@ export default function QuoteBuilder() {
     </>
   );
 }
-git add pages\index.tsx
-git commit -m "Trigger fresh deploy with all recent changes"
-git push

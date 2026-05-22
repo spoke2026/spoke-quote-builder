@@ -96,9 +96,10 @@ export default function QuoteBuilder() {
   const [savedQuotes, setSavedQuotes] = useState<{ id: string; share_token: string; title: string; customer_name: string; updated_at: string }[]>([]);
   const [currentQuoteId, setCurrentQuoteId] = useState<string | null>(null);
   const [shareLink, setShareLink] = useState('');
+  const [savedQuotes, setSavedQuotes] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
-  const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings' | 'quotes'>('products');
   const [showUrlModal, setShowUrlModal] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
 
@@ -294,7 +295,7 @@ export default function QuoteBuilder() {
           </div>
 
           <div className="tab-bar">
-            {(['products', 'selected', 'settings'] as const).map(tab => (
+            {(['products', 'selected', 'settings', 'quotes'] as const).map(tab => (
               <button key={tab} className={`tab-btn${activeTab === tab ? ' active' : ''}`} onClick={() => setActiveTab(tab)}>
                 {tab === 'selected' ? `Selected (${lineItems.length})` : tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -465,6 +466,46 @@ export default function QuoteBuilder() {
                   <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setHeroImage)} />
                   {heroImage && <img src={heroImage} alt="hero preview" className="file-preview" />}
                 </label>
+              </div>
+            </div>
+          )}
+{/* ── Quotes Tab ── */}
+          {activeTab === 'quotes' && (
+            <div className="tab-content">
+              <p className="hint" style={{marginBottom:'12px'}}>Click a quote to load it into the builder.</p>
+              <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+                {savedQuotes.length === 0 && <p className="hint">No saved quotes found.</p>}
+                {savedQuotes.map(q => (
+                  <div key={q.id} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',borderRadius:'4px',padding:'10px',cursor:'pointer'}}
+                    onClick={async () => {
+                      const res = await fetch(`/api/quotes?id=${q.id}`);
+                      const data = await res.json();
+                      const quote = data.quote;
+                      if (!quote) return;
+                      setCurrentQuoteId(quote.id);
+                      setTitle(quote.title ?? '');
+                      setCustomerName(quote.customer_name ?? '');
+                      setIntroHeadline(quote.intro_headline ?? '');
+                      setIntroCopy(quote.intro_copy ?? '');
+                      setContactEmail(quote.contact_email ?? '');
+                      setContactPhone(quote.contact_phone ?? '');
+                      setOutputType(quote.output_type ?? 'quote');
+                      setTier(quote.pricing_tier ?? 'T1');
+                      setSetupFee(quote.setup_fee ?? '');
+                      setCustomerLogo(quote.customer_logo_data_url ?? '');
+                      setHeroImage(quote.hero_image_data_url ?? '');
+                      setLineItems((quote.line_items ?? []).map((li: any) => ({
+                        product: li.product_snapshot,
+                        qty: li.qty,
+                        logos: li.logos ?? [],
+                      })));
+                      setShareLink(`${window.location.origin}/api/quotes/share/${quote.share_token}`);
+                      setActiveTab('selected');
+                    }}>
+                    <div style={{fontWeight:700,color:'#fff',fontSize:'13px'}}>{q.customer_name || 'Unnamed'} — {q.title}</div>
+                    <div style={{fontSize:'11px',color:'rgba(255,255,255,.5)',marginTop:'3px'}}>{q.output_type} · {q.pricing_tier} · {new Date(q.updated_at).toLocaleDateString()}</div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

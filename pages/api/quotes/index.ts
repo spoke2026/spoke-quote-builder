@@ -15,6 +15,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   return res.status(405).json({ error: 'Method not allowed' });
 }
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+  const id = String(req.query.id ?? '').trim();
+  if (id && !req.query.limit) {
+    const { data, error } = await supabase
+      .from('quotes')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ quote: data });
+  }
   const createdBy = String(req.query.created_by ?? '').trim();
   const limit = Math.min(Number(req.query.limit ?? 50), 200);
   let query = supabase

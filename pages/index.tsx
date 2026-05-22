@@ -471,9 +471,32 @@ export default function QuoteBuilder() {
 
           {/* ── Actions ── */}
           <div className="panel-actions">
-            <button className="btn-primary" onClick={saveQuote} disabled={saving}>
-              {saving ? 'Saving…' : currentQuoteId ? 'Update quote' : 'Save quote'}
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn-primary" onClick={saveQuote} disabled={saving}>
+                {saving ? 'Saving…' : currentQuoteId ? 'Update quote' : 'Save quote'}
+              </button>
+              {currentQuoteId && (
+                <button className="btn-primary" style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}
+                  onClick={() => {
+                    setCurrentQuoteId(null);
+                    setShareLink('');
+                    setTitle('Fit for work');
+                    setCustomerName('');
+                    setIntroHeadline('Better gear, clearer choices, quicker decisions.');
+                    setIntroCopy('A workwear quote built from your Spoke product database.');
+                    setContactEmail('sales@spoke.nz');
+                    setContactPhone('021 220 1014');
+                    setOutputType('quote');
+                    setTier('T1');
+                    setSetupFee('Quoted per new logo');
+                    setLineItems([]);
+                    setCustomerLogo('');
+                    setHeroImage('');
+                  }}>
+                  + New quote
+                </button>
+              )}
+            </div>
             {shareLink && (
               <div className="share-box">
                 <span className="share-label">Share link:</span>

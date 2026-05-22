@@ -541,7 +541,7 @@ export default function QuoteBuilder() {
     },
   };
 }));
-                      })));
+                      }));
                       setShareLink(`${window.location.origin}/api/quotes/share/${quote.share_token}`);
                       setActiveTab('selected');
                     }}>

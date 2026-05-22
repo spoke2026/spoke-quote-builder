@@ -23,16 +23,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const config: QuoteConfig = {
-    outputType:      quote.output_type as 'quote' | 'pricelist',
-    customerName:    quote.customer_name,
-    title:           quote.title,
-    introHeadline:   quote.intro_headline,
-    introCopy:       quote.intro_copy,
-    contactEmail:    quote.contact_email,
-    contactPhone:    quote.contact_phone,
-    tier:            quote.pricing_tier as 'T1' | 'T2' | 'T3',
-    logoUnitPrice:   0,
-    setupFee:        quote.setup_fee ?? 'Quoted per new logo',
+    outputType:           quote.output_type as 'quote' | 'pricelist',
+    customerName:         quote.customer_name,
+    title:                quote.title,
+    introHeadline:        quote.intro_headline,
+    introCopy:            quote.intro_copy,
+    contactEmail:         quote.contact_email,
+    contactPhone:         quote.contact_phone,
+    tier:                 quote.pricing_tier as 'T1' | 'T2' | 'T3',
+    logoUnitPrice:        0,
+    setupFee:             quote.setup_fee ?? 'Quoted per new logo',
+    customerLogoDataUrl:  quote.customer_logo_data_url ?? undefined,
+    heroImageDataUrl:     quote.hero_image_data_url ?? undefined,
   };
 
   const lineItems: QuoteLineItem[] = (quote.line_items ?? []).map((item: {

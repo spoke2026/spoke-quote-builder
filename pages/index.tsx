@@ -408,14 +408,16 @@ export default function QuoteBuilder() {
                       <div className="product-name">{li.product.name}</div>
                       <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {fmt(getPrice(li.product, tier))}</div>
                       <div className="qty-row">
-                        <label>Qty
-                          <input type="number" min="0" value={li.qty}
-                                                                     onChange={e => updateQty(idx, Number(e.target.value))}
-                                                                     onBlur={e => updateQty(idx, Number(e.target.value))}
-                                                                    />
-                        </label>
-                        <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
-                      </div>
+  <label>Qty
+    <input type="number" min="1" value={li.qty}
+      onChange={e => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) updateQty(idx, val);
+      }}
+    />
+  </label>
+  <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
+</div>
 
                       {/* Logo positions */}
                       {li.logos.length > 0 && (

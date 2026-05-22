@@ -28,9 +28,6 @@ function esc(s: unknown): string {
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m] ?? m)
   );
 }
-function stripHtml(s: unknown): string {
-  return String(s ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'").trim();
-}
 
 function parseMoney(value: unknown): number {
   const n = Number(String(value ?? '').replace(/[^0-9.-]+/g, ''));
@@ -114,7 +111,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
       : '';
 
     const features = (item.product as unknown as { features?: string[] }).features ?? 
-      (item.product.description ? stripHtml(item.product.description).split('.').filter(Boolean).map(s => s.trim()) : []);
+      (item.product.description ? item.product.description.split('.').filter(Boolean).map(s => s.trim()) : []);
 
     const featureHtml = features.length
       ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>`
@@ -134,7 +131,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
       <div class="product-copy">
         <div class="eyebrow">Option ${i + 1} · ${esc(item.product.spokeSkU || item.product.supplierSku)}</div>
         <h2>${esc(item.product.name)}</h2>
-        <p class="summary">${stripHtml((item.product as unknown as { shortDescription?: string }).shortDescription || item.product.description)}</p>
+        <p class="summary">${esc((item.product as unknown as { shortDescription?: string }).shortDescription || item.product.description)}</p>
         <div class="meta-grid">
           <div><span>Size</span><strong>${esc(item.product.size)}</strong></div>
           <div><span>Colour</span><strong>${esc(item.product.colour)}</strong></div>

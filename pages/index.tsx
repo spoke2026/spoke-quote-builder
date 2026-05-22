@@ -93,15 +93,17 @@ export default function QuoteBuilder() {
   const [searching, setSearching] = useState(false);
   const searchTimer = useRef<NodeJS.Timeout | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
-  const [savedQuotes, setSavedQuotes] = useState<{ id: string; share_token: string; title: string; customer_name: string; updated_at: string }[]>([]);
+  const [savedQuotes, setSavedQuotes] = useState<any[]>([]);
   const [currentQuoteId, setCurrentQuoteId] = useState<string | null>(null);
   const [shareLink, setShareLink] = useState('');
-  const [savedQuotes, setSavedQuotes] = useState<any[]>([]);
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [pinUnlocked, setPinUnlocked] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings' | 'quotes'>('products');
   const [showUrlModal, setShowUrlModal] = useState(false);
-  const [editProduct, setEditProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetch('/api/quotes?limit=30')
@@ -278,14 +280,38 @@ export default function QuoteBuilder() {
     }
   }
 
+ if (!pinUnlocked) {
+    return (
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#40514F',flexDirection:'column',gap:'16px'}}>
+        <div style={{fontFamily:'Georgia,serif',fontStyle:'italic',fontSize:'48px',color:'#BEDA81'}}>spoke</div>
+        <div style={{color:'rgba(255,255,255,.6)',fontSize:'13px',letterSpacing:'.12em',textTransform:'uppercase'}}>Enter PIN to continue</div>
+        <input
+          type="password"
+          maxLength={4}
+          value={pinInput}
+          onChange={e => { setPinInput(e.target.value); setPinError(false); }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              if (pinInput === '2026') { setPinUnlocked(true); }
+              else { setPinError(true); setPinInput(''); }
+            }
+          }}
+          style={{textAlign:'center',fontSize:'28px',letterSpacing:'.3em',width:'140px',padding:'12px',border:pinError?'2px solid #ff6b6b':'2px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.08)',color:'#fff',borderRadius:'4px',outline:'none'}}
+          autoFocus
+          placeholder="••••"
+        />
+        {pinError && <div style={{color:'#ff6b6b',fontSize:'13px'}}>Incorrect PIN</div>}
+        <button onClick={() => { if (pinInput === '2026') { setPinUnlocked(true); } else { setPinError(true); setPinInput(''); } }}
+          style={{background:'#BEDA81',color:'#40514F',border:'none',padding:'12px 32px',fontWeight:700,borderRadius:'2px',cursor:'pointer',letterSpacing:'.08em',textTransform:'uppercase'}}>
+          Unlock
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
-        <title>Spoke Quote Builder</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </Head>
 
       <div className="app">
         <aside className="panel">

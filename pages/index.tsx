@@ -68,8 +68,8 @@ function thumbnailSrc(product: Product): string {
 
 function lineItemTotal(li: LineItem, tier: Tier): number {
   const unit = getPrice(li.product, tier);
-  const logoTotal = li.logos.reduce((sum, l) => sum + l.price, 0);
-  return li.qty * (unit + logoTotal);
+  const logoTotal = li.logos.reduce((sum, l) => sum + (Number(l.price) || 0), 0);
+  return (Number(li.qty) || 0) * (unit + logoTotal);
 }
 
 function newLogoPosition(): LogoPosition {
@@ -186,7 +186,7 @@ export default function QuoteBuilder() {
     let prodSub = 0, logoSub = 0;
     lineItems.forEach(li => {
       prodSub += li.qty * getPrice(li.product, tier);
-      logoSub += li.qty * li.logos.reduce((sum, l) => sum + l.price, 0);
+      logoSub += (Number(li.qty) || 0) * li.logos.reduce((sum, l) => sum + (Number(l.price) || 0), 0);
     });
     const grand = prodSub + logoSub;
     return { prodSub, logoSub, grand, gst: grand * 0.15, incl: grand * 1.15 };

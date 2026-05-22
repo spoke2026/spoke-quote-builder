@@ -574,7 +574,7 @@ export default function QuoteBuilder() {
       )}
       {editProduct && (
         <EditProductModal
-          product={editProduct as import('@/components/EditProductModal').ProductData}
+          product={editProduct as never}
           onClose={() => setEditProduct(null)}
           onSaved={() => { doSearch(searchQuery); setEditProduct(null); }}
         />

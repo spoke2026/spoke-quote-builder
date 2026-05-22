@@ -529,7 +529,7 @@ export default function QuoteBuilder() {
                       setLineItems((quote.line_items ?? []).map((li: any) => {
                         const s = li.product_snapshot;
                         return {
-                          qty: li.qty,
+                          qty: Number(li.qty) || 1,
                           logos: li.logos ?? [],
                           product: {
                             ...s,

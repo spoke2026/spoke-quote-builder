@@ -554,54 +554,6 @@ export default function QuoteBuilder() {
               )}
             </div>
           )}
-                        </label>
-                        <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
-                      </div>
-                      {li.logos.length > 0 && (
-                        <div className="logo-positions">
-                          {li.logos.map(logo => (
-                            <div key={logo.id} className="logo-row">
-                              <input
-                                className="logo-position-input"
-                                placeholder="Position (e.g. Chest)"
-                                value={logo.position}
-                                onChange={e => updateLogo(idx, logo.id, 'position', e.target.value)}
-                              />
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>$</span>
-                                <input
-                                  className="logo-price-input"
-                                  type="number" min="0" step="0.50" placeholder="0.00"
-                                  value={logo.price || ''}
-                                  onChange={e => updateLogo(idx, logo.id, 'price', parseMoney(e.target.value))}
-                                />
-                              </div>
-                              <button className="icon-btn danger" onClick={() => removeLogo(idx, logo.id)}>×</button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <button className="add-logo-btn" onClick={() => addLogo(idx)}>+ Add logo position</button>
-                    </div>
-                    <div className="item-actions">
-                      <button className="icon-btn" onClick={() => moveItem(idx, -1)} disabled={idx === 0}>↑</button>
-                      <button className="icon-btn" onClick={() => moveItem(idx, 1)} disabled={idx === lineItems.length - 1}>↓</button>
-                      <button className="icon-btn danger" onClick={() => removeItem(idx)}>×</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {lineItems.length > 0 && (
-                <div className="totals-box">
-                  <div className="total-row"><span>Products</span><span>{fmt(totals.prodSub)}</span></div>
-                  <div className="total-row"><span>Logos</span><span>{fmt(totals.logoSub)}</span></div>
-                  <div className="total-row"><span>Excl GST</span><span>{fmt(totals.grand)}</span></div>
-                  <div className="total-row"><span>GST 15%</span><span>{fmt(totals.gst)}</span></div>
-                  <div className="total-row grand"><span>Total incl GST</span><span>{fmt(totals.incl)}</span></div>
-                </div>
-               )}
-            </div>
-          )}
 
           {/* ── Settings Tab ── */}
           {activeTab === 'settings' && (

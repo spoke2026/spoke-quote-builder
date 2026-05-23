@@ -34,6 +34,7 @@ interface LineItem {
   product: Product;
   qty: number;
   logos: LogoPosition[];
+  category: string;
 }
 
 type Tier = 'T1' | 'T2' | 'T3';
@@ -141,7 +142,7 @@ export default function QuoteBuilder() {
   function addProduct(product: Product) {
     setLineItems(prev => {
       if (prev.some(li => li.product.id === product.id)) return prev;
-      return [...prev, { product, qty: 1, logos: [] }];
+      return [...prev, { product, qty: 1, logos: [], category: '' }];
     });
     setActiveTab('selected');
   }
@@ -193,9 +194,14 @@ export default function QuoteBuilder() {
   })();
 
   async function saveQuote() {
-    setSaving(true);
-    setShareLink('');
-    try {
+  const missing = lineItems.some(li => !li.category.trim());
+  if (missing) {
+    alert('All products must have a category assigned before saving.');
+    return;
+  }
+  setSaving(true);
+  setShareLink('');
+  try {
       const body = {
         title, customer_name: customerName, intro_headline: introHeadline,
         intro_copy: introCopy, contact_email: contactEmail, contact_phone: contactPhone,
@@ -204,8 +210,9 @@ export default function QuoteBuilder() {
         customer_logo_data_url: customerLogo ?? null,
         hero_image_data_url: heroImage ?? null,
         line_items: lineItems.map(li => ({
-          qty: li.qty,
-          logos: li.logos,
+  qty: li.qty,
+  logos: li.logos,
+  category: li.category,
           unit_price: getPrice(li.product, tier),
           line_total: lineItemTotal(li, tier),
           product_snapshot: {
@@ -395,29 +402,158 @@ export default function QuoteBuilder() {
               {lineItems.length === 0 && (
                 <p className="hint">No products selected yet. Search and add products from the Products tab.</p>
               )}
-              <div className="selected-list">
-                {lineItems.map((li, idx) => (
-                  <div key={idx} className="selected-item">
-                    <img className="selected-thumb" src={thumbnailSrc(li.product)} alt={li.product.name}
-                      onError={e => { (e.target as HTMLImageElement).src = placeholderImg(); }} />
-                    <div className="selected-info">
-                      <div className="product-name">{li.product.name}</div>
-                      <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {fmt(getPrice(li.product, tier))}</div>
-                      <div className="qty-row">
-                        <label>Qty
-                          <input
-                            type="number"
-                            min="1"
-                            value={li.qty}
-                            onChange={e => {
-                              const val = parseInt(e.target.value, 10);
-                              if (!isNaN(val) && val > 0) {
-                                setLineItems(prev => prev.map((item, i) =>
-                                  i === idx ? { ...item, qty: val } : item
-                                ));
-                              }
-                            }}
-                          />
+              {(() => {
+                // Get ordered unique categories
+                const categoryOrder: string[] = [];
+                lineItems.forEach(li => {
+                  const cat = li.category.trim() || '(uncategorised)';
+                  if (!categoryOrder.includes(cat)) categoryOrder.push(cat);
+                });
+
+                function moveCategoryUp(cat: string) {
+                  const idx = categoryOrder.indexOf(cat);
+                  if (idx <= 0) return;
+                  // Reorder lineItems so this category's items come before previous category
+                  const prev = categoryOrder[idx - 1];
+                  setLineItems(items => {
+                    const thisItems = items.filter(li => (li.category.trim() || '(uncategorised)') === cat);
+                    const prevItems = items.filter(li => (li.category.trim() || '(uncategorised)') === prev);
+                    const others = items.filter(li => {
+                      const c = li.category.trim() || '(uncategorised)';
+                      return c !== cat && c !== prev;
+                    });
+                    const ordered: LineItem[] = [];
+                    categoryOrder.forEach((c, i) => {
+                      if (i === idx - 1) { ordered.push(...thisItems); ordered.push(...prevItems); }
+                      else if (i === idx) { /* skip, already added */ }
+                      else { ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === c && !ordered.includes(li))); }
+                    });
+                    return ordered;
+                  });
+                }
+
+                function moveCategoryDown(cat: string) {
+                  const idx = categoryOrder.indexOf(cat);
+                  if (idx >= categoryOrder.length - 1) return;
+                  const next = categoryOrder[idx + 1];
+                  setLineItems(items => {
+                    const ordered: LineItem[] = [];
+                    categoryOrder.forEach((c, i) => {
+                      if (i === idx) { /* skip */ }
+                      else if (i === idx + 1) {
+                        ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === next));
+                        ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === cat));
+                      } else {
+                        ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === c));
+                      }
+                    });
+                    return ordered;
+                  });
+                }
+
+                return categoryOrder.map((cat, catIdx) => {
+                  const catItems = lineItems.filter(li => (li.category.trim() || '(uncategorised)') === cat);
+                  return (
+                    <div key={cat} style={{marginBottom:'12px'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px'}}>
+                        <div style={{flex:1,background:'rgba(190,218,129,.15)',border:'1px solid rgba(190,218,129,.3)',borderRadius:'3px',padding:'6px 10px',color:'#BEDA81',fontSize:'11px',fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase'}}>
+                          {cat}
+                        </div>
+                        <button className="icon-btn" onClick={() => moveCategoryUp(cat)} disabled={catIdx === 0}>↑</button>
+                        <button className="icon-btn" onClick={() => moveCategoryDown(cat)} disabled={catIdx === categoryOrder.length - 1}>↓</button>
+                      </div>
+                      <div className="selected-list">
+                        {catItems.map((li) => {
+                          const idx = lineItems.indexOf(li);
+                          return (
+                            <div key={idx} className="selected-item">
+                              <img className="selected-thumb" src={thumbnailSrc(li.product)} alt={li.product.name}
+                                onError={e => { (e.target as HTMLImageElement).src = placeholderImg(); }} />
+                              <div className="selected-info">
+                                <div className="product-name">{li.product.name}</div>
+                                <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {fmt(getPrice(li.product, tier))}</div>
+                                <div className="qty-row">
+                                  <label>Qty
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={li.qty}
+                                      onChange={e => {
+                                        const val = parseInt(e.target.value, 10);
+                                        if (!isNaN(val) && val > 0) {
+                                          setLineItems(prev => prev.map((item, i) =>
+                                            i === idx ? { ...item, qty: val } : item
+                                          ));
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                  <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
+                                </div>
+                                <label style={{fontSize:'10px',letterSpacing:'.08em',textTransform:'uppercase',color:'rgba(255,255,255,.5)',display:'flex',flexDirection:'column',gap:'2px',marginTop:'6px'}}>
+                                  Category
+                                  <input
+                                    style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:'3px',color:'#fff',padding:'5px 8px',fontSize:'12px',fontFamily:"'DM Sans',sans-serif",width:'100%'}}
+                                    placeholder="e.g. Hand Protection"
+                                    value={li.category}
+                                    onChange={e => {
+                                      const val = e.target.value;
+                                      setLineItems(prev => prev.map((item, i) =>
+                                        i === idx ? { ...item, category: val } : item
+                                      ));
+                                    }}
+                                  />
+                                </label>
+                                {li.logos.length > 0 && (
+                                  <div className="logo-positions">
+                                    {li.logos.map(logo => (
+                                      <div key={logo.id} className="logo-row">
+                                        <input
+                                          className="logo-position-input"
+                                          placeholder="Position (e.g. Chest)"
+                                          value={logo.position}
+                                          onChange={e => updateLogo(idx, logo.id, 'position', e.target.value)}
+                                        />
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>$</span>
+                                          <input
+                                            className="logo-price-input"
+                                            type="number" min="0" step="0.50" placeholder="0.00"
+                                            value={logo.price || ''}
+                                            onChange={e => updateLogo(idx, logo.id, 'price', parseMoney(e.target.value))}
+                                          />
+                                        </div>
+                                        <button className="icon-btn danger" onClick={() => removeLogo(idx, logo.id)}>×</button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                <button className="add-logo-btn" onClick={() => addLogo(idx)}>+ Add logo position</button>
+                              </div>
+                              <div className="item-actions">
+                                <button className="icon-btn" onClick={() => moveItem(idx, -1)} disabled={idx === 0}>↑</button>
+                                <button className="icon-btn" onClick={() => moveItem(idx, 1)} disabled={idx === lineItems.length - 1}>↓</button>
+                                <button className="icon-btn danger" onClick={() => removeItem(idx)}>×</button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+              {lineItems.length > 0 && (
+                <div className="totals-box">
+                  <div className="total-row"><span>Products</span><span>{fmt(totals.prodSub)}</span></div>
+                  <div className="total-row"><span>Logos</span><span>{fmt(totals.logoSub)}</span></div>
+                  <div className="total-row"><span>Excl GST</span><span>{fmt(totals.grand)}</span></div>
+                  <div className="total-row"><span>GST 15%</span><span>{fmt(totals.gst)}</span></div>
+                  <div className="total-row grand"><span>Total incl GST</span><span>{fmt(totals.incl)}</span></div>
+                </div>
+              )}
+            </div>
+          )}
                         </label>
                         <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
                       </div>
@@ -532,8 +668,9 @@ export default function QuoteBuilder() {
                         const s = li.product_snapshot;
                         return {
                           qty: Number(li.qty) || 1,
-                          logos: li.logos ?? [],
-                          product: {
+logos: li.logos ?? [],
+category: li.category ?? '',
+product: {
                             ...s,
                             t1_price: s.t1_price ?? s.t1Price ?? 0,
                             t2_price: s.t2_price ?? s.t2Price ?? 0,

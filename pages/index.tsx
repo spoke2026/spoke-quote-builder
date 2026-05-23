@@ -599,7 +599,7 @@ export default function QuoteBuilder() {
                   <div className="total-row"><span>GST 15%</span><span>{fmt(totals.gst)}</span></div>
                   <div className="total-row grand"><span>Total incl GST</span><span>{fmt(totals.incl)}</span></div>
                 </div>
-              )}
+               )}
             </div>
           )}
 

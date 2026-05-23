@@ -339,10 +339,11 @@ function customerRecalcTotals(){
   var ps=0,ls=0;
   document.querySelectorAll('[data-calc-row]').forEach(function(row){
     var unit=Number(row.dataset.unit||0),logoTotal=Number(row.dataset.logoTotal||0);
-var qi=row.querySelector('[data-qty-input]');
-var qty=Number(qi?qi.value:0);
-ps+=qty*unit; ls+=qty*logoTotal;
-row.querySelectorAll('[data-line-total]').forEach(function(el){el.textContent=formatMoney(qty*(unit+logoTotal));});
+    var qi=row.querySelector('[data-qty-input]');
+    var qty=Number(qi?qi.value:0);
+    ps+=qty*unit; ls+=qty*logoTotal;
+    row.querySelectorAll('[data-line-total]').forEach(function(el){el.textContent=formatMoney(qty*(unit+logoTotal));});
+  });
   var excl=ps+ls,gst=excl*0.15,incl=excl+gst;
   document.querySelectorAll('[data-product-subtotal]').forEach(function(el){el.textContent=formatMoney(ps);});
   document.querySelectorAll('[data-logo-subtotal]').forEach(function(el){el.textContent=formatMoney(ls);});

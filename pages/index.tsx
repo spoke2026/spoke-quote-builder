@@ -548,9 +548,27 @@ export default function QuoteBuilder() {
                       setShareLink(`${window.location.origin}/api/quotes/share/${quote.share_token}`);
                       setActiveTab('selected');
                     }}>
-                    <div style={{fontWeight:700,color:'#fff',fontSize:'13px'}}>{q.customer_name || 'Unnamed'} — {q.title}</div>
-                    <div style={{fontSize:'11px',color:'rgba(255,255,255,.5)',marginTop:'3px'}}>{q.output_type} · {q.pricing_tier} · {new Date(q.updated_at).toLocaleDateString()}</div>
-                  </div>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+  <div>
+    <div style={{fontWeight:700,color:'#fff',fontSize:'13px'}}>{q.customer_name || 'Unnamed'} — {q.title}</div>
+    <div style={{fontSize:'11px',color:'rgba(255,255,255,.5)',marginTop:'3px'}}>{q.output_type} · {q.pricing_tier} · {new Date(q.updated_at).toLocaleDateString()}</div>
+  </div>
+  <button
+    style={{background:'rgba(255,80,80,.2)',border:'1px solid rgba(255,80,80,.4)',color:'#ff8888',borderRadius:'3px',padding:'4px 10px',fontSize:'11px',cursor:'pointer',flexShrink:0,marginLeft:'10px'}}
+    onClick={async (e) => {
+      e.stopPropagation();
+      if (!confirm(`Delete "${q.customer_name || 'Unnamed'} — ${q.title}"?`)) return;
+      await fetch(`/api/quotes?id=${q.id}`, { method: 'DELETE' });
+      setSavedQuotes(prev => prev.filter(x => x.id !== q.id));
+      if (currentQuoteId === q.id) {
+        setCurrentQuoteId(null);
+        setShareLink('');
+        setLineItems([]);
+      }
+    }}>
+    Delete
+  </button>
+</div>
                 ))}
               </div>
             </div>

@@ -569,11 +569,13 @@ export default function QuoteBuilder() {
     Delete
   </button>
 </div>
+                  </div>
                 ))}
               </div>
             </div>
           )}
 
+          {/* ── Actions ── */}
           {/* ── Actions ── */}
           <div className="panel-actions">
             <div style={{ display: 'flex', gap: '8px' }}>

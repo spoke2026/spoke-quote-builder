@@ -279,7 +279,7 @@ export default function QuoteBuilder() {
   if (!pinUnlocked) {
     return (
       <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#40514F',flexDirection:'column',gap:'16px'}}>
-        <div style={{fontFamily:'Georgia,serif',fontStyle:'italic',fontSize:'48px',color:'#BEDA81'}}>spoke</div>
+        <img src="/spoke-logo-landscape-white.png" alt="Spoke" style={{height:'48px',width:'auto',display:'block'}} />
         <div style={{color:'rgba(255,255,255,.6)',fontSize:'13px',letterSpacing:'.12em',textTransform:'uppercase'}}>Enter PIN to continue</div>
         <input
           type="password"

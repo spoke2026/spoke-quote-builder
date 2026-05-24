@@ -401,144 +401,75 @@ export default function QuoteBuilder() {
             </div>
           )}
 
-          {/* ── Selected Tab ── */}
+         {/* ── Selected Tab ── */}
           {activeTab === 'selected' && (
             <div className="tab-content">
               {lineItems.length === 0 && (
                 <p className="hint">No products selected yet. Search and add products from the Products tab.</p>
               )}
-             {(() => {
-
-                function moveCategoryUp(cat: string) {
-                  const idx = categoryOrder.indexOf(cat);
-                  if (idx <= 0) return;
-                  // Reorder lineItems so this category's items come before previous category
-                  const prev = categoryOrder[idx - 1];
-                  setLineItems(items => {
-                    const thisItems = items.filter(li => (li.category.trim() || '(uncategorised)') === cat);
-                    const prevItems = items.filter(li => (li.category.trim() || '(uncategorised)') === prev);
-                    const others = items.filter(li => {
-                      const c = li.category.trim() || '(uncategorised)';
-                      return c !== cat && c !== prev;
-                    });
-                    const ordered: LineItem[] = [];
-                    categoryOrder.forEach((c, i) => {
-                      if (i === idx - 1) { ordered.push(...thisItems); ordered.push(...prevItems); }
-                      else if (i === idx) { /* skip, already added */ }
-                      else { ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === c && !ordered.includes(li))); }
-                    });
-                    return ordered;
-                  });
-                }
-
-                function moveCategoryDown(cat: string) {
-                  const idx = categoryOrder.indexOf(cat);
-                  if (idx >= categoryOrder.length - 1) return;
-                  const next = categoryOrder[idx + 1];
-                  setLineItems(items => {
-                    const ordered: LineItem[] = [];
-                    categoryOrder.forEach((c, i) => {
-                      if (i === idx) { /* skip */ }
-                      else if (i === idx + 1) {
-                        ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === next));
-                        ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === cat));
-                      } else {
-                        ordered.push(...items.filter(li => (li.category.trim() || '(uncategorised)') === c));
-                      }
-                    });
-                    return ordered;
-                  });
-                }
-
-               return categoryOrder.map((cat, catIdx) => {
-  const catItems = lineItems.map((li, idx) => ({ li, idx })).filter(({ li }) => (li.category.trim() || '(uncategorised)') === cat);
-  return (
-    <div key={cat} style={{marginBottom:'12px'}}>
-                      <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px'}}>
-                        <div style={{flex:1,background:'rgba(190,218,129,.15)',border:'1px solid rgba(190,218,129,.3)',borderRadius:'3px',padding:'6px 10px',color:'#BEDA81',fontSize:'11px',fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase'}}>
-                          {cat}
-                        </div>
-                        <button className="icon-btn" onClick={() => moveCategoryUp(cat)} disabled={catIdx === 0}>↑</button>
-                        <button className="icon-btn" onClick={() => moveCategoryDown(cat)} disabled={catIdx === categoryOrder.length - 1}>↓</button>
+              <div className="selected-list">
+                {lineItems.map((li, idx) => (
+                  <div key={li.product.id} className="selected-item">
+                    <img className="selected-thumb" src={thumbnailSrc(li.product)} alt={li.product.name}
+                      onError={e => { (e.target as HTMLImageElement).src = placeholderImg(); }} />
+                    <div className="selected-info">
+                      <div className="product-name">{li.product.name}</div>
+                      <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {fmt(getPrice(li.product, tier))}</div>
+                      <div className="qty-row">
+                        <label>Qty
+                          <input type="number" min="1" value={li.qty}
+                            onChange={e => {
+                              const val = parseInt(e.target.value, 10);
+                              if (!isNaN(val) && val > 0) {
+                                setLineItems(prev => prev.map((item, i) => i === idx ? { ...item, qty: val } : item));
+                              }
+                            }}
+                          />
+                        </label>
+                        <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
                       </div>
-                      <div className="selected-list">
-                        {catItems.map(({ li, idx }) => (
-    <div key={idx} className="selected-item">
-                              <img className="selected-thumb" src={thumbnailSrc(li.product)} alt={li.product.name}
-                                onError={e => { (e.target as HTMLImageElement).src = placeholderImg(); }} />
-                              <div className="selected-info">
-                                <div className="product-name">{li.product.name}</div>
-                                <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {fmt(getPrice(li.product, tier))}</div>
-                                <div className="qty-row">
-                                  <label>Qty
-                                    <input
-                                      type="number"
-                                      min="1"
-                                      value={li.qty}
-                                      onChange={e => {
-                                        const val = parseInt(e.target.value, 10);
-                                        if (!isNaN(val) && val > 0) {
-                                          setLineItems(prev => prev.map((item, i) =>
-                                            i === idx ? { ...item, qty: val } : item
-                                          ));
-                                        }
-                                      }}
-                                    />
-                                  </label>
-                                  <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
-                                </div>
-                                <label style={{fontSize:'10px',letterSpacing:'.08em',textTransform:'uppercase',color:'rgba(255,255,255,.5)',display:'flex',flexDirection:'column',gap:'2px',marginTop:'6px'}}>
-                                  Category
-                                  <input
-                                    style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:'3px',color:'#fff',padding:'5px 8px',fontSize:'12px',fontFamily:"'DM Sans',sans-serif",width:'100%'}}
-                                    placeholder="e.g. Hand Protection"
-                                    value={li.category}
-                                    onChange={e => {
-                                      const val = e.target.value;
-                                      setLineItems(prev => prev.map((item, i) =>
-                                        i === idx ? { ...item, category: val } : item
-                                      ));
-                                    }}
-                                  />
-                                </label>
-                                {li.logos.length > 0 && (
-                                  <div className="logo-positions">
-                                    {li.logos.map(logo => (
-                                      <div key={logo.id} className="logo-row">
-                                        <input
-                                          className="logo-position-input"
-                                          placeholder="Position (e.g. Chest)"
-                                          value={logo.position}
-                                          onChange={e => updateLogo(idx, logo.id, 'position', e.target.value)}
-                                        />
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>$</span>
-                                          <input
-                                            className="logo-price-input"
-                                            type="number" min="0" step="0.50" placeholder="0.00"
-                                            value={logo.price || ''}
-                                            onChange={e => updateLogo(idx, logo.id, 'price', parseMoney(e.target.value))}
-                                          />
-                                        </div>
-                                        <button className="icon-btn danger" onClick={() => removeLogo(idx, logo.id)}>×</button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                                <button className="add-logo-btn" onClick={() => addLogo(idx)}>+ Add logo position</button>
+                      <label style={{fontSize:'10px',letterSpacing:'.08em',textTransform:'uppercase',color:'rgba(255,255,255,.5)',display:'flex',flexDirection:'column',gap:'2px',marginTop:'6px'}}>
+                        Category
+                        <input
+                          style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:'3px',color:'#fff',padding:'5px 8px',fontSize:'12px',fontFamily:"'DM Sans',sans-serif",width:'100%'}}
+                          placeholder="e.g. Hand Protection"
+                          value={li.category}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setLineItems(prev => prev.map((item, i) => i === idx ? { ...item, category: val } : item));
+                          }}
+                        />
+                      </label>
+                      {li.logos.length > 0 && (
+                        <div className="logo-positions">
+                          {li.logos.map(logo => (
+                            <div key={logo.id} className="logo-row">
+                              <input className="logo-position-input" placeholder="Position (e.g. Chest)"
+                                value={logo.position}
+                                onChange={e => updateLogo(idx, logo.id, 'position', e.target.value)}
+                              />
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>$</span>
+                                <input className="logo-price-input" type="number" min="0" step="0.50" placeholder="0.00"
+                                  value={logo.price || ''}
+                                  onChange={e => updateLogo(idx, logo.id, 'price', parseMoney(e.target.value))}
+                                />
                               </div>
-                              <div className="item-actions">
-                                <button className="icon-btn" onClick={() => moveItem(idx, -1)} disabled={idx === 0}>↑</button>
-                                <button className="icon-btn" onClick={() => moveItem(idx, 1)} disabled={idx === lineItems.length - 1}>↓</button>
-                                <button className="icon-btn danger" onClick={() => removeItem(idx)}>×</button>
-                              </div>
-                           </div>
+                              <button className="icon-btn danger" onClick={() => removeLogo(idx, logo.id)}>×</button>
+                            </div>
                           ))}
-                      </div>
+                        </div>
+                      )}
+                      <button className="add-logo-btn" onClick={() => addLogo(idx)}>+ Add logo position</button>
                     </div>
-                  );
-                });
-              })()}
+                    <div className="item-actions">
+                      <button className="icon-btn" onClick={() => moveItem(idx, -1)} disabled={idx === 0}>↑</button>
+                      <button className="icon-btn" onClick={() => moveItem(idx, 1)} disabled={idx === lineItems.length - 1}>↓</button>
+                      <button className="icon-btn danger" onClick={() => removeItem(idx)}>×</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
               {lineItems.length > 0 && (
                 <div className="totals-box">
                   <div className="total-row"><span>Products</span><span>{fmt(totals.prodSub)}</span></div>

@@ -39,11 +39,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const lineItems: QuoteLineItem[] = (quote.line_items ?? []).map((item: {
     qty: number;
+    category?: string;
     logos?: { id: string; position: string; price: number }[];
     product_snapshot: Partial<NormalisedProduct>;
   }) => ({
-    qty:    item.qty ?? 1,
-    logos:  item.logos ?? [],
+    qty:      item.qty ?? 1,
+    category: item.category ?? '',
+    logos:    item.logos ?? [],
     product: {
       id: '', stockCode: '', styleCode: '', spokeSkU: '', supplierSku: '',
       supplier: 'AS Colour', description: '', shortDescription: '', size: '',

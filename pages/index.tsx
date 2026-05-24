@@ -105,6 +105,7 @@ export default function QuoteBuilder() {
   const [syncMsg, setSyncMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings' | 'quotes'>('products');
   const [showUrlModal, setShowUrlModal] = useState(false);
+  const categoryOrder = Array.from(new Set(lineItems.map(li => li.category.trim() || '(uncategorised)')));
 
   useEffect(() => {
     fetch('/api/quotes?limit=30')
@@ -402,13 +403,7 @@ export default function QuoteBuilder() {
               {lineItems.length === 0 && (
                 <p className="hint">No products selected yet. Search and add products from the Products tab.</p>
               )}
-              {(() => {
-                // Get ordered unique categories
-                const categoryOrder: string[] = [];
-                lineItems.forEach(li => {
-                  const cat = li.category.trim() || '(uncategorised)';
-                  if (!categoryOrder.includes(cat)) categoryOrder.push(cat);
-                });
+             {(() => {
 
                 function moveCategoryUp(cat: string) {
                   const idx = categoryOrder.indexOf(cat);

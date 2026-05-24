@@ -72,6 +72,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
       <section class="products">${cards}</section>`;
   }
 
+  // Build cards per category
   const cardsByCategory: Record<string, string[]> = {};
   items.forEach((item, i) => {
     const cat = item.category?.trim() || 'General';
@@ -90,14 +91,13 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
     const featureHtml = features.length
       ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
     const composition = (item.product as unknown as { composition?: string }).composition;
-    const optionNum = i + 1;
     cardsByCategory[cat].push(`<section class="product-card">
       <div class="product-media"><div class="gallery-wrap">
         <img class="gallery-main" id="gm-${i}" src="${esc(mainSrc)}" onerror="this.onerror=null;this.src='${placeholderSvg()}';" alt="${esc(item.product.name)}">
         ${thumbs}
       </div></div>
       <div class="product-copy">
-        <div class="eyebrow">Option ${optionNum} · ${esc(item.product.spokeSkU || item.product.supplierSku)}</div>
+        <div class="eyebrow">Option ${i + 1} · ${esc(item.product.spokeSkU || item.product.supplierSku)}</div>
         <h2>${esc(item.product.name)}</h2>
         <p class="summary">${esc((item.product as unknown as { shortDescription?: string }).shortDescription || item.product.description)}</p>
         <div class="meta-grid">
@@ -113,12 +113,42 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
     </section>`);
   });
 
-  const sections = categories.map(cat => `
-    <div class="category-heading">${esc(cat)}</div>
-    <section class="products">${cardsByCategory[cat].join('')}</section>
-  `).join('');
+  const tabIds = categories.map((cat, i) => `cat-${i}`);
 
-  return sections;
+  const tabs = categories.map((cat, i) =>
+    `<button class="cat-tab${i === 0 ? ' active' : ''}" onclick="showCategory('${tabIds[i]}')" id="tab-${tabIds[i]}">${esc(cat)}</button>`
+  ).join('');
+
+  const sections = categories.map((cat, i) =>
+    `<div class="cat-section" id="${tabIds[i]}"${i !== 0 ? ' style="display:none"' : ''}>
+      <div class="cat-heading">${esc(cat)}</div>
+      <section class="products">${cardsByCategory[cat].join('')}</section>
+    </div>`
+  ).join('');
+
+  return `<div class="cat-tab-bar" id="cat-tab-bar">${tabs}</div>
+    <div class="cat-tab-sentinel" id="cat-tab-sentinel"></div>
+    ${sections}
+    <script>
+      function showCategory(id) {
+        document.querySelectorAll('.cat-section').forEach(function(s){s.style.display='none';});
+        document.querySelectorAll('.cat-tab').forEach(function(t){t.classList.remove('active');});
+        document.getElementById(id).style.display='block';
+        document.getElementById('tab-'+id).classList.add('active');
+      }
+      (function(){
+        var bar = document.getElementById('cat-tab-bar');
+        var sentinel = document.getElementById('cat-tab-sentinel');
+        var barTop = bar.getBoundingClientRect().top + window.scrollY;
+        window.addEventListener('scroll', function(){
+          if (window.scrollY >= barTop) {
+            bar.classList.add('sticky');
+          } else {
+            bar.classList.remove('sticky');
+          }
+        });
+      })();
+    </script>`;
 }
 export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): string {
   const totals = calculateTotals(items, config.tier, config.logoUnitPrice);
@@ -367,6 +397,11 @@ td.price{color:var(--mineral);font-weight:700;white-space:nowrap}
 footer{background:#2a2a2a;padding:24px 44px;text-align:center;color:#777;font-size:11px}
 .footer-logo-img{width:120px;height:auto;display:block;margin:0 auto 12px}
 .category-heading{background:var(--mineral);color:var(--zest);padding:18px 58px;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-top:24px}
+.cat-tab-bar{background:#fff;border-bottom:2px solid var(--line);display:flex;gap:0;padding:0 58px;z-index:100;}
+.cat-tab-bar.sticky{position:fixed;top:0;left:0;right:0;box-shadow:0 2px 12px rgba(0,0,0,.1);}
+.cat-tab{background:none;border:none;border-bottom:3px solid transparent;color:var(--muted);font-family:'DM Sans',Arial,sans-serif;font-size:14px;font-weight:600;padding:18px 24px;cursor:pointer;letter-spacing:.04em;margin-bottom:-2px;border-radius:0;}
+.cat-tab.active,.cat-tab:hover{color:var(--mineral);border-bottom-color:var(--zest);}
+.cat-heading{padding:40px 58px 8px;font-family:Georgia,'DM Serif Display',serif;font-size:36px;font-weight:700;color:var(--mineral);}
 .output-actions{padding:16px;text-align:right;background:#d8d8cc}
 @media(max-width:980px){.hero,.intro,.product-card,.cta{grid-template-columns:1fr}.hero-image{min-height:320px;order:-1}}
 @media print{body{background:#fff}.output-actions{display:none}#quotePreview{box-shadow:none;max-width:none;margin:0}.product-card{break-inside:avoid}.quote-header,.fit-bar,.cta,footer,td,th{print-color-adjust:exact;-webkit-print-color-adjust:exact}}

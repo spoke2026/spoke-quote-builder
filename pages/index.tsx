@@ -107,7 +107,8 @@ export default function QuoteBuilder() {
   const [showUrlModal, setShowUrlModal] = useState(false);
   const categoryOrder = useMemo(
   () => Array.from(new Set(lineItems.map(li => li.category.trim() || '(uncategorised)'))),
-  [lineItems.map(li => li.category).join('|')]
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [lineItems.length]
 );
 
   useEffect(() => {

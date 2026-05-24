@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 const ProductFromUrlModal = dynamic(() => import('@/components/ProductFromUrlModal'), { ssr: false });
@@ -105,7 +105,10 @@ export default function QuoteBuilder() {
   const [syncMsg, setSyncMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings' | 'quotes'>('products');
   const [showUrlModal, setShowUrlModal] = useState(false);
-  const categoryOrder = Array.from(new Set(lineItems.map(li => li.category.trim() || '(uncategorised)')));
+  const categoryOrder = useMemo(
+  () => Array.from(new Set(lineItems.map(li => li.category.trim() || '(uncategorised)'))),
+  [lineItems.map(li => li.category).join('|')]
+);
 
   useEffect(() => {
     fetch('/api/quotes?limit=30')

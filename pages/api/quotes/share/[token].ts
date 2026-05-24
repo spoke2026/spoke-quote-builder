@@ -58,6 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const html = generateQuoteHTML(config, lineItems);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   return res.status(200).send(html);
 }

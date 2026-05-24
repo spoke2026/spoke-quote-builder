@@ -97,7 +97,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
         ${thumbs}
       </div></div>
       <div class="product-copy">
-        <div class="eyebrow">Option ${i + 1} · ${esc(item.product.spokeSkU || item.product.supplierSku)}</div>
+        <div class="eyebrow">Option ${i + 1}${item.product.spokeSkU ? ` · ${esc(item.product.spokeSkU)}` : ''}</div>
         <h2>${esc(item.product.name)}</h2>
         <p class="summary">${esc((item.product as unknown as { shortDescription?: string }).shortDescription || item.product.description)}</p>
         <div class="meta-grid">
@@ -234,7 +234,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
         </div>
       </div>
       <div class="product-copy">
-        <div class="eyebrow">Option ${i + 1} · ${esc(item.product.spokeSkU || item.product.supplierSku)}</div>
+        <div class="eyebrow">Option ${i + 1}${item.product.spokeSkU ? ` · ${esc(item.product.spokeSkU)}` : ''}</div>
         <h2>${esc(item.product.name)}</h2>
         <p class="summary">${esc((item.product as unknown as { shortDescription?: string }).shortDescription || item.product.description)}</p>
         <div class="meta-grid">

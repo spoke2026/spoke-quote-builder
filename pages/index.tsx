@@ -446,10 +446,10 @@ export default function QuoteBuilder() {
                   });
                 }
 
-                return categoryOrder.map((cat, catIdx) => {
-                  const catItems = lineItems.filter(li => (li.category.trim() || '(uncategorised)') === cat);
-                  return (
-                    <div key={cat} style={{marginBottom:'12px'}}>
+               return categoryOrder.map((cat, catIdx) => {
+  const catItems = lineItems.map((li, idx) => ({ li, idx })).filter(({ li }) => (li.category.trim() || '(uncategorised)') === cat);
+  return (
+    <div key={cat} style={{marginBottom:'12px'}}>
                       <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'6px'}}>
                         <div style={{flex:1,background:'rgba(190,218,129,.15)',border:'1px solid rgba(190,218,129,.3)',borderRadius:'3px',padding:'6px 10px',color:'#BEDA81',fontSize:'11px',fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase'}}>
                           {cat}
@@ -458,10 +458,8 @@ export default function QuoteBuilder() {
                         <button className="icon-btn" onClick={() => moveCategoryDown(cat)} disabled={catIdx === categoryOrder.length - 1}>↓</button>
                       </div>
                       <div className="selected-list">
-                        {catItems.map((li) => {
-                          const idx = lineItems.indexOf(li);
-                          return (
-                            <div key={idx} className="selected-item">
+                        {catItems.map(({ li, idx }) => (
+    <div key={idx} className="selected-item">
                               <img className="selected-thumb" src={thumbnailSrc(li.product)} alt={li.product.name}
                                 onError={e => { (e.target as HTMLImageElement).src = placeholderImg(); }} />
                               <div className="selected-info">
@@ -530,9 +528,8 @@ export default function QuoteBuilder() {
                                 <button className="icon-btn" onClick={() => moveItem(idx, 1)} disabled={idx === lineItems.length - 1}>↓</button>
                                 <button className="icon-btn danger" onClick={() => removeItem(idx)}>×</button>
                               </div>
-                            </div>
-                          );
-                        })}
+                           </div>
+                          ))}
                       </div>
                     </div>
                   );

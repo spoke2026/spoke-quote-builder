@@ -135,8 +135,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
 
   const sections = categories.map((cat, i) =>
     `<div class="cat-section" id="${tabIds[i]}"${i !== 0 ? ' style="display:none"' : ''}>
-      <div class="cat-heading">${esc(cat)}</div>
-      <section class="products">${cardsByCategory[cat].join('')}</section>
+            <section class="products">${cardsByCategory[cat].join('')}</section>
     </div>`
   ).join('');
 

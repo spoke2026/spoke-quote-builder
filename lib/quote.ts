@@ -125,6 +125,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
       if (!cardsByCategory[cat]) cardsByCategory[cat] = [];
       cardsByCategory[cat].push(cardHtml);
     });
+  });
 
   const tabIds = categories.map((cat, i) => `cat-${i}`);
 

@@ -59,7 +59,14 @@ function placeholderSvg(): string {
 }
 
 function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string {
-  const categories = Array.from(new Set(items.map(li => li.category?.trim() || 'General')));
+  const categories = Array.from(new Set(
+    items.flatMap(li =>
+      (li.category?.trim() || 'General')
+        .split(',')
+        .map(c => c.trim().toLowerCase())
+        .filter(c => c.length > 0)
+    )
+  ));
   const multiCategory = categories.length > 1;
 
   if (!multiCategory) {
@@ -75,8 +82,10 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
   // Build cards per category
   const cardsByCategory: Record<string, string[]> = {};
   items.forEach((item, i) => {
-    const cat = item.category?.trim() || 'General';
-    if (!cardsByCategory[cat]) cardsByCategory[cat] = [];
+    const cats = (item.category?.trim() || 'General')
+      .split(',')
+      .map(c => c.trim().toLowerCase())
+      .filter(c => c.length > 0);
     const logos = Array.isArray(item.logos) ? item.logos : [];
     const images = item.product.imageUrls ?? [];
     const mainSrc = images[0] ?? placeholderSvg();
@@ -91,7 +100,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
     const featureHtml = features.length
       ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
     const composition = (item.product as unknown as { composition?: string }).composition;
-    cardsByCategory[cat].push(`<section class="product-card">
+    const cardHtml = `<section class="product-card">
       <div class="product-media"><div class="gallery-wrap">
         <img class="gallery-main" id="gm-${i}" src="${esc(mainSrc)}" onerror="this.onerror=null;this.src='${placeholderSvg()}';" alt="${esc(item.product.name)}">
         ${thumbs}
@@ -110,8 +119,11 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
         ${composition ? `<p class="note"><strong>Composition:</strong> ${esc(composition)}</p>` : ''}
         <p class="note"><strong>Setup fee:</strong> ${esc(config.setupFee)}</p>
       </div>
-    </section>`);
-  });
+    </section>`;
+    cats.forEach(cat => {
+      if (!cardsByCategory[cat]) cardsByCategory[cat] = [];
+      cardsByCategory[cat].push(cardHtml);
+    });
 
   const tabIds = categories.map((cat, i) => `cat-${i}`);
 

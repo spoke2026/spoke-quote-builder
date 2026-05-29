@@ -58,7 +58,7 @@ function placeholderSvg(): string {
   return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
 }
 
-function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string {
+function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string | undefined {
   if (items.length === 0) return '';
   const categories = Array.from(new Set(
     items.flatMap(li =>
@@ -336,7 +336,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
       </section>
       <div class="fit-bar">Workwear quote | Prepared by Spoke · spoke.nz</div>
       <section class="intro"><h2>${esc(config.introHeadline)}</h2><p>${esc(config.introCopy)}</p></section>
-      ${buildCategoryContent(items, config, summaryRows, cards)}
+      ${buildCategoryContent(items, config, summaryRows, cards) ?? ''}
       ${totalBox}${termsAndCta}`;
 
   return `<!DOCTYPE html>

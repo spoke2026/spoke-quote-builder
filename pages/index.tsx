@@ -20,6 +20,7 @@ interface Product {
   t1_price: number;
   t2_price: number;
   t3_price: number;
+  indent_price: number;
   image_urls: string[];
   display_price?: number;
 }
@@ -45,6 +46,7 @@ type OutputType = 'quote' | 'pricelist';
 function getPrice(p: Product, tier: Tier): number {
   if (tier === 'T2') return p.t2_price ?? p.t1_price ?? 0;
   if (tier === 'T3') return p.t3_price ?? p.t1_price ?? 0;
+  if (tier === 'Indent') return p.indent_price ?? p.t1_price ?? 0;
   return p.t1_price ?? 0;
 }
 
@@ -227,7 +229,8 @@ export default function QuoteBuilder() {
             description: li.product.description, size: li.product.size,
             colour: li.product.colour, category: li.product.category,
             t1Price: li.product.t1_price, t2Price: li.product.t2_price,
-            t3Price: li.product.t3_price, imageUrls: li.product.image_urls,
+            t3Price: li.product.t3_price, indentPrice: li.product.indent_price,
+            imageUrls: li.product.image_urls,
           },
         })),
       };
@@ -555,6 +558,7 @@ product: {
                             t1_price: s.t1_price ?? s.t1Price ?? 0,
                             t2_price: s.t2_price ?? s.t2Price ?? 0,
                             t3_price: s.t3_price ?? s.t3Price ?? 0,
+                                                                           indent_price: s.indent_price ?? s.indentPrice ?? 0,
                             stock_code: s.stock_code ?? s.stockCode ?? '',
                             spoke_sku: s.spoke_sku ?? s.spokeSkU ?? '',
                             supplier_sku: s.supplier_sku ?? s.supplierSku ?? '',

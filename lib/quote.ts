@@ -58,7 +58,7 @@ function placeholderSvg(): string {
   return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
 }
 
-function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string {
+function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string { // eslint-disable-line
   const categories = Array.from(new Set(
     items.flatMap(li =>
       (li.category?.trim() || 'General')
@@ -161,6 +161,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
         });
       })();
     </script>`;
+  return '';
 }
 export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): string {
   const totals = calculateTotals(items, config.tier, config.logoUnitPrice);

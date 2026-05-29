@@ -63,6 +63,7 @@ for (const r of validRows) {
         t2_gp:       parseMoney(r['T2 GP%']),
         t3_price:    parseMoney(r['T3 Price']),
         t3_gp:       parseMoney(r['T3 GP%']),
+        indent_price: parseMoney(r['Indent']),
         cost:        parseMoney(r['Cost']),
         gender:      String(r['Gender'] ?? '').trim(),
       };
@@ -98,6 +99,7 @@ for (const r of validRows) {
           t2_gp:        parseMoney(r['T2 GP%']),
           t3_price:     parseMoney(r['T3 Price']),
           t3_gp:        parseMoney(r['T3 GP%']),
+          indent_price: parseMoney(r['Indent']),
           image_urls:   [],
         });
         updated++;

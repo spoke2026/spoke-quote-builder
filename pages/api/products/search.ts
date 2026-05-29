@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let query = supabase
       .from('products')
       .select(
-        'id, stock_code, style_code, supplier_sku, spoke_sku, supplier, name, description, size, colour, category, gender, t1_price, t2_price, t3_price, image_urls'
+        'id, stock_code, style_code, supplier_sku, spoke_sku, supplier, name, description, size, colour, category, gender, t1_price, t2_price, t3_price, indent_price, image_urls'
       )
       .limit(limit);
 
@@ -48,9 +48,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Attach the correct display price based on tier
     const tierField: Record<string, string> = {
-      T1: 't1_price',
-      T2: 't2_price',
-      T3: 't3_price',
+      T1:     't1_price',
+      T2:     't2_price',
+      T3:     't3_price',
+      Indent: 'indent_price',
     };
     const priceField = tierField[tier] ?? 't1_price';
 

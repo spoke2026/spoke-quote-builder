@@ -37,7 +37,7 @@ interface LineItem {
   category: string;
 }
 
-type Tier = 'T1' | 'T2' | 'T3';
+type Tier = 'T1' | 'T2' | 'T3' | 'Indent';
 type OutputType = 'quote' | 'pricelist';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -497,7 +497,8 @@ export default function QuoteBuilder() {
                     <option value="T1">T1 (Standard)</option>
                     <option value="T2">T2</option>
                     <option value="T3">T3</option>
-                  </select>
+                                                     <option value="Indent">Indent</option>
+                                          </select>
                 </label>
                 <label>Customer name<input value={customerName} onChange={e => setCustomerName(e.target.value)} /></label>
                 <label>Quote title<input value={title} onChange={e => setTitle(e.target.value)} /></label>

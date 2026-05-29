@@ -19,12 +19,13 @@ export interface NormalisedProduct {
   t1Price: number;
   t2Price: number;
   t3Price: number;
+  indentPrice: number;
   imageUrls: string[];
   qty: number;
   logoCount: number;
 }
 
-export type PricingTier = 'T1' | 'T2' | 'T3';
+export type PricingTier = 'T1' | 'T2' | 'T3' | 'Indent';
 
 export function parseMoney(value: unknown): number {
   const n = Number(String(value ?? '').replace(/[^0-9.-]+/g, ''));
@@ -37,9 +38,10 @@ export function formatMoney(value: number): string {
 
 export function getPrice(product: NormalisedProduct, tier: PricingTier): number {
   switch (tier) {
-    case 'T2': return product.t2Price || product.t1Price;
-    case 'T3': return product.t3Price || product.t1Price;
-    default:   return product.t1Price;
+    case 'T2':     return product.t2Price || product.t1Price;
+    case 'T3':     return product.t3Price || product.t1Price;
+    case 'Indent': return product.indentPrice || product.t1Price;
+    default:       return product.t1Price;
   }
 }
 

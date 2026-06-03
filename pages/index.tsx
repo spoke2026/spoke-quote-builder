@@ -240,7 +240,9 @@ export default function QuoteBuilder() {
       if (currentQuoteId) { url = `/api/quotes?id=${currentQuoteId}`; method = 'PUT'; }
 
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data = await res.json();
+      const text = await res.text();
+      let data: Record<string, string> = {};
+      try { data = JSON.parse(text); } catch { throw new Error('Server error: ' + text.slice(0, 200)); }
       if (!res.ok) throw new Error(data.error ?? 'Save failed');
 
       if (!currentQuoteId && data.id) setCurrentQuoteId(data.id);

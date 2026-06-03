@@ -20,6 +20,7 @@ export interface NormalisedProduct {
   t2Price: number;
   t3Price: number;
   indentPrice: number;
+  features: string[];
   imageUrls: string[];
   qty: number;
   logoCount: number;
@@ -96,6 +97,7 @@ export function mapStockItemRow(row: Record<string, string>, index: number): Nor
     t2Price: 0,
     t3Price: 0,
     indentPrice: 0,
+    features: [],
     imageUrls: uniqueImages,
     qty: 1,
     logoCount: 1,
@@ -138,6 +140,7 @@ export function mapASColourRow(row: Record<string, string>, index: number): Norm
     t2Price: 0,
     t3Price: 0,
     indentPrice: 0,
+    features: [],
     imageUrls: images,
     qty: 1,
     logoCount: 1,

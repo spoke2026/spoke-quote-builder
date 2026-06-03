@@ -49,6 +49,7 @@ async function handleSave(req: NextApiRequest, res: NextApiResponse) {
         t2_price:          0,
         t3_price:          0,
         image_urls:        product.imageUrls || [],
+        features:          product.features || [],
       })
       .select('id')
       .single();
@@ -84,6 +85,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
         gender:            product.gender || '',
         composition:       product.composition || '',
         image_urls:        product.imageUrls || [],
+        features:          product.features || [],
       })
       .eq('id', id);
 

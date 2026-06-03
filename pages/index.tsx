@@ -21,6 +21,7 @@ interface Product {
   t2_price: number;
   t3_price: number;
   indent_price: number;
+  features: string[];
   image_urls: string[];
   display_price?: number;
 }
@@ -230,6 +231,7 @@ export default function QuoteBuilder() {
             colour: li.product.colour, category: li.product.category,
             t1Price: li.product.t1_price, t2Price: li.product.t2_price,
             t3Price: li.product.t3_price, indentPrice: li.product.indent_price,
+            features: (li.product as unknown as { features?: string[] }).features ?? [],
             imageUrls: li.product.image_urls,
           },
         })),

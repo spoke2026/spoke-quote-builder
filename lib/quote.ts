@@ -233,11 +233,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
     const featureHtml = features.length
       ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
 
-    const featureHtml = features.length
-      ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>`
-      : '';
-
-    const composition = (item.product as unknown as { composition?: string }).composition;
+        const composition = (item.product as unknown as { composition?: string }).composition;
 
     return `<section class="product-card">
       <div class="product-media">

@@ -229,8 +229,9 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
         ).join('')}</div>`
       : '';
 
-    const features = (item.product as unknown as { features?: string[] }).features ?? 
-      (item.product.description ? item.product.description.split('.').filter(Boolean).map(s => s.trim()) : []);
+    const features = (item.product as unknown as { features?: string[] }).features ?? [];
+    const featureHtml = features.length
+      ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
 
     const featureHtml = features.length
       ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>`

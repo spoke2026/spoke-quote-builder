@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let query = supabase
       .from('products')
       .select(
-        'id, stock_code, style_code, supplier_sku, spoke_sku, supplier, name, description, size, colour, category, gender, t1_price, t2_price, t3_price, indent_price, image_urls'
+        'id, stock_code, style_code, supplier_sku, spoke_sku, supplier, name, description, short_description, size, colour, category, gender, composition, t1_price, t2_price, t3_price, indent_price, image_urls, features'
       )
       .limit(limit);
 

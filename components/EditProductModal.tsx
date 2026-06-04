@@ -13,6 +13,7 @@ interface ProductData {
   category: string;
   gender: string;
   composition: string;
+  features: string[];
   image_urls: string[];
   t1_price: number;
   t2_price: number;
@@ -38,6 +39,7 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
     category:         product.category || '',
     gender:           product.gender || '',
     composition:      product.composition || '',
+    features:         product.features || [],
     imageUrls:        product.image_urls || [],
   });
 
@@ -74,7 +76,7 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
       const res = await fetch('/api/products/save-product', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: product.id, product: form }),
+        body: JSON.stringify({ id: product.id, product: { ...form, features: form.features.map(f => f.trim()).filter(Boolean) } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -115,6 +117,12 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
           <Field label="Short Description" value={form.shortDescription} onChange={v => update('shortDescription', v)} />
           <FieldTextarea label="Full Description" value={form.description} onChange={v => update('description', v)} />
           <Field label="Composition / Materials" value={form.composition} onChange={v => update('composition', v)} />
+
+          <div>
+            <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '4px' }}>Features (one per line)</label>
+            <textarea value={form.features.join('\n')} onChange={e => setForm(prev => ({ ...prev, features: e.target.value.split('\n') }))} rows={4}
+              style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }} />
+          </div>
 
           {/* Pricing display (read-only) */}
           <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '12px 14px' }}>

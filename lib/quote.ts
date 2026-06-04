@@ -96,10 +96,10 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
             onclick="var m=document.getElementById('gm-${i}');m.src='${esc(img)}';this.parentElement.querySelectorAll('img').forEach(x=>x.classList.remove('active'));this.classList.add('active');">`
         ).join('')}</div>`
       : '';
-    const features = (item.product as unknown as { features?: string[] }).features ??
-      (item.product.description ? item.product.description.split('.').filter(Boolean).map(s => s.trim()) : []);
+    const features = ((item.product as unknown as { features?: string[] }).features ?? [])
+      .map(f => f.trim()).filter(Boolean);
     const featureHtml = features.length
-      ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
+      ? `<ul class="feature-list">${features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
     const composition = (item.product as unknown as { composition?: string }).composition;
     const cardHtml = `<section class="product-card">
       <div class="product-media"><div class="gallery-wrap">
@@ -229,9 +229,10 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
         ).join('')}</div>`
       : '';
 
-    const features = (item.product as unknown as { features?: string[] }).features ?? [];
+    const features = ((item.product as unknown as { features?: string[] }).features ?? [])
+      .map(f => f.trim()).filter(Boolean);
     const featureHtml = features.length
-      ? `<ul class="feature-list">${features.slice(0, 6).map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
+      ? `<ul class="feature-list">${features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '';
 
         const composition = (item.product as unknown as { composition?: string }).composition;
 

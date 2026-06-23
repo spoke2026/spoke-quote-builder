@@ -38,8 +38,13 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).json({ quotes: data ?? [] });
 }
 
+function generateShareToken(): string {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const body = req.body;
+  const shareToken = generateShareToken();
   const { data, error } = await supabaseAdmin
     .from('quotes')
     .insert({
@@ -57,6 +62,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       created_by:               body.created_by      ?? '',
       customer_logo_data_url:   body.customer_logo_data_url ?? null,
       hero_image_data_url:      body.hero_image_data_url    ?? null,
+      share_token:              shareToken,
     })
     .select('id, share_token')
     .single();

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 export const config = {
   api: {
     bodyParser: {
@@ -109,7 +109,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
   const id = String(req.query.id ?? '').trim();
   if (!id) return res.status(400).json({ error: 'id required' });
-  const { error } = await supabase.from('quotes').delete().eq('id', id);
+  const { error } = await supabaseAdmin.from('quotes').delete().eq('id', id);
   if (error) return res.status(500).json({ error: error.message });
   return res.status(200).json({ success: true });
 }

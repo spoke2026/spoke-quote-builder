@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') return handleSave(req, res);
@@ -14,7 +14,7 @@ async function handleSave(req: NextApiRequest, res: NextApiResponse) {
 
     // Check for duplicate supplier SKU
     if (product.supplierSku) {
-      const { data: existing } = await supabase
+      const { data: existing } = await supabaseAdmin
         .from('products')
         .select('id, name')
         .eq('supplier_sku', product.supplierSku)

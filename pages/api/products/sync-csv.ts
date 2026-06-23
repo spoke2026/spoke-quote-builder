@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { mapStockItemRow, mapASColourRow, normaliseHeader } from '@/lib/products';
 
 export const config = {
@@ -86,12 +86,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // On first chunk, delete existing AS Colour products
     if (isFirst) {
-      await supabase.from('products').delete().eq('supplier', 'AS Colour');
+      await supabaseAdmin.from('products').delete().eq('supplier', 'AS Colour');
     }
 
     // Insert chunk
     if (dbRows.length > 0) {
-      const { error } = await supabase.from('products').insert(dbRows);
+      const { error } = await supabaseAdmin.from('products').insert(dbRows);
       if (error) {
         console.error('Insert error:', error);
         return res.status(500).json({ error: error.message });

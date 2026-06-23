@@ -2,8 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://jdvksxdfiquzilijavhh.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkdmtzeGRmaXF1emlsaWphdmhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNDE2MDgsImV4cCI6MjA5NzgxNzYwOH0.8RnwFZco85oYzdKbq6k-QGWDiqXG9XaLJRaChxKxgYk';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabaseAdmin = supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : supabase;
 
 // ─── Database types ────────────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 /**
  * GET /api/products/search?q=staple+tee&tier=T1&limit=50
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const category = String(req.query.category ?? '').trim();
 
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('products')
       .select(
         'id, stock_code, style_code, supplier_sku, spoke_sku, supplier, name, description, short_description, size, colour, category, gender, composition, t1_price, t2_price, t3_price, indent_price, image_urls, features'

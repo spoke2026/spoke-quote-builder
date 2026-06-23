@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { parseMoney } from '@/lib/products';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -83,7 +83,7 @@ for (const r of validRows) {
       if (updatedRows && updatedRows.length > 0) {
         updated++;
       } else {
-        const { error: insertError } = await supabase.from('products').insert({
+        const { error: insertError } = await supabaseAdmin.from('products').insert({
           supplier_sku: supplierSku,
           spoke_sku:    String(r['Spoke SKU'] ?? '').trim(),
           supplier:     String(r['Supplier'] ?? '').trim(),

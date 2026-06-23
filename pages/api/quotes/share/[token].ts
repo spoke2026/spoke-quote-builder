@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { generateQuoteHTML, QuoteConfig, QuoteLineItem } from '@/lib/quote';
 import { NormalisedProduct } from '@/lib/products';
 
@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const token = String(req.query.token ?? '').trim();
   if (!token) return res.status(400).send('<h1>Invalid link</h1>');
 
-  const { data: quote, error } = await supabase
+  const { data: quote, error } = await supabaseAdmin
     .from('quotes')
     .select('*')
     .eq('share_token', token)

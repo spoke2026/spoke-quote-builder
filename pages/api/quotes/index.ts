@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdminAdmin } from '@/lib/supabaseAdmin';
 export const config = {
   api: {
     bodyParser: {
@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const id = String(req.query.id ?? '').trim();
   if (id && !req.query.limit) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('quotes')
       .select('*')
       .eq('id', id)
@@ -27,7 +27,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   }
   const createdBy = String(req.query.created_by ?? '').trim();
   const limit = Math.min(Number(req.query.limit ?? 50), 200);
-  let query = supabase
+  let query = supabaseAdmin
     .from('quotes')
     .select('id, title, customer_name, output_type, pricing_tier, created_by, share_token, created_at, updated_at')
     .order('updated_at', { ascending: false })
@@ -40,7 +40,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const body = req.body;
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('quotes')
     .insert({
       title:                    body.title           ?? 'Fit for work',
@@ -73,13 +73,13 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
   const body = req.body;
 
   // First get the existing share_token so we can return it
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from('quotes')
     .select('share_token')
     .eq('id', id)
     .single();
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('quotes')
     .update({
       title:                    body.title,
@@ -109,7 +109,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
 async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
   const id = String(req.query.id ?? '').trim();
   if (!id) return res.status(400).json({ error: 'id required' });
-  const { error } = await supabaseAdmin.from('quotes').delete().eq('id', id);
+  const { error } = await supabaseAdminAdmin.from('quotes').delete().eq('id', id);
   if (error) return res.status(500).json({ error: error.message });
   return res.status(200).json({ success: true });
 }

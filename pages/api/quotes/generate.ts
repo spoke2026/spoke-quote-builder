@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { generateQuoteHTML, QuoteConfig, QuoteLineItem } from '@/lib/quote';
 import { NormalisedProduct } from '@/lib/products';
 import fs from 'fs';
@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!quoteId) return res.status(400).json({ error: 'quoteId required' });
 
-  const { data: quote, error } = await supabase
+  const { data: quote, error } = await supabaseAdmin
     .from('quotes')
     .select('*')
     .eq('id', quoteId)

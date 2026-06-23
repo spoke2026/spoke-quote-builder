@@ -30,7 +30,7 @@ async function handleSave(req: NextApiRequest, res: NextApiResponse) {
       }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('products')
       .insert({
         supplier_sku:      product.supplierSku || '',
@@ -70,7 +70,7 @@ async function handleUpdate(req: NextApiRequest, res: NextApiResponse) {
     const { id, product } = req.body;
     if (!id || !product) return res.status(400).json({ error: 'id and product required' });
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('products')
       .update({
         supplier_sku:      product.supplierSku || '',

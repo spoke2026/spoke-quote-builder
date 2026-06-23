@@ -83,7 +83,7 @@ for (const r of validRows) {
       if (updatedRows && updatedRows.length > 0) {
         updated++;
       } else {
-        await supabase.from('products').insert({
+        const { error: insertError } = await supabase.from('products').insert({
           supplier_sku: supplierSku,
           spoke_sku:    String(r['Spoke SKU'] ?? '').trim(),
           supplier:     String(r['Supplier'] ?? '').trim(),
@@ -102,6 +102,10 @@ for (const r of validRows) {
           indent_price: parseMoney(r['Indent']),
           image_urls:   [],
         });
+        if (insertError) {
+          console.error('Insert error for SKU', supplierSku, ':', insertError);
+          throw new Error(`Insert failed for SKU ${supplierSku}: ${insertError.message}`);
+        }
         updated++;
       }
     }

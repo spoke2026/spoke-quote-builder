@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabaseAdminAdmin } from '@/lib/supabaseAdmin';
+import { supabaseAdmin } from '@/lib/supabase';
 export const config = {
   api: {
     bodyParser: {

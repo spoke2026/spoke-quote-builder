@@ -74,7 +74,7 @@ for (const r of validRows) {
       if (r['Size Range']) updateData.size = String(r['Size Range']).trim();
       if (r['Colour Options']) updateData.colour = String(r['Colour Options']).trim();
 
-      const { data: updatedRows } = await supabase
+      const { data: updatedRows } = await supabaseAdmin
         .from('products')
         .update(updateData)
         .eq('supplier_sku', supplierSku)

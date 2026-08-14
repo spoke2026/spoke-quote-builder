@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
 import { generateQuoteHTML, QuoteConfig, QuoteLineItem } from '@/lib/quote';
 import { NormalisedProduct } from '@/lib/products';
+import { requireUser } from '@/lib/supabase/api';
 import fs from 'fs';
 import path from 'path';
 
@@ -18,6 +19,8 @@ const SPOKE_LOGO_B64 = 'data:image/svg+xml;base64,' + Buffer.from(
  * Returns: text/html
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const user = await requireUser(req, res);
+  if (!user) return;
   if (req.method !== 'POST') return res.status(405).end();
 
   const { quoteId, customerLogoDataUrl, heroImageDataUrl } = req.body ?? {};

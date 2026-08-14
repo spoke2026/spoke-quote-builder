@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
+import { createClient } from '@/lib/supabase/client';
 const ProductFromUrlModal = dynamic(() => import('@/components/ProductFromUrlModal'), { ssr: false });
 const EditProductModal = dynamic(() => import('@/components/EditProductModal'), { ssr: false });
 
@@ -101,9 +102,6 @@ export default function QuoteBuilder() {
   const [currentQuoteId, setCurrentQuoteId] = useState<string | null>(null);
   const [shareLink, setShareLink] = useState('');
   const [editProduct, setEditProduct] = useState<Product | null>(null);
-  const [pinUnlocked, setPinUnlocked] = useState(false);
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings' | 'quotes'>('products');
@@ -295,33 +293,13 @@ export default function QuoteBuilder() {
     }
   }
 
-  if (!pinUnlocked) {
-    return (
-      <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#40514F',flexDirection:'column',gap:'16px'}}>
-        <img src="/spoke-logo-landscape-white.png" alt="Spoke" style={{height:'48px',width:'auto',display:'block'}} />
-        <div style={{color:'rgba(255,255,255,.6)',fontSize:'13px',letterSpacing:'.12em',textTransform:'uppercase'}}>Enter PIN to continue</div>
-        <input
-          type="password"
-          maxLength={4}
-          value={pinInput}
-          onChange={e => { setPinInput(e.target.value); setPinError(false); }}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              if (pinInput === '2026') { setPinUnlocked(true); }
-              else { setPinError(true); setPinInput(''); }
-            }
-          }}
-          style={{textAlign:'center',fontSize:'28px',letterSpacing:'.3em',width:'140px',padding:'12px',border:pinError?'2px solid #ff6b6b':'2px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.08)',color:'#fff',borderRadius:'4px',outline:'none'}}
-          autoFocus
-          placeholder="••••"
-        />
-        {pinError && <div style={{color:'#ff6b6b',fontSize:'13px'}}>Incorrect PIN</div>}
-        <button onClick={() => { if (pinInput === '2026') { setPinUnlocked(true); } else { setPinError(true); setPinInput(''); } }}
-          style={{background:'#BEDA81',color:'#40514F',border:'none',padding:'12px 32px',fontWeight:700,borderRadius:'2px',cursor:'pointer',letterSpacing:'.08em',textTransform:'uppercase'}}>
-          Unlock
-        </button>
-      </div>
-    );
+  async function handleSignOut() {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } finally {
+      window.location.assign('/login');
+    }
   }
 
   return (
@@ -335,8 +313,13 @@ export default function QuoteBuilder() {
       <div className="app">
         <aside className="panel">
           <div className="panel-header">
-            <img src="/spoke-logo-landscape-white.png" alt="Spoke" className="spoke-wordmark" />
-            <div className="panel-subtitle">Quote Builder</div>
+            <div className="panel-header-top">
+              <div>
+                <img src="/spoke-logo-landscape-white.png" alt="Spoke" className="spoke-wordmark" />
+                <div className="panel-subtitle">Quote Builder</div>
+              </div>
+              <button type="button" className="signout-btn" onClick={handleSignOut}>Sign out</button>
+            </div>
           </div>
 
           <div className="tab-bar">
@@ -754,6 +737,10 @@ product: {
         .app { display: grid; grid-template-columns: 420px 1fr; min-height: 100vh; }
         .panel { background: var(--mineral); color: #fff; display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; overflow: hidden; }
         .panel-header { padding: 22px 24px 0; flex-shrink: 0; }
+        .panel-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .signout-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.85); border-radius: 8px; height: 32px; padding: 0 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+        .signout-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
+        .signout-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(147, 175, 82, 0.45); }
         .spoke-wordmark { height: 32px; width: auto; display: block; margin-bottom: 2px; }
         .panel-subtitle { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 16px; }
         .tab-bar { display: flex; border-bottom: 1px solid rgba(255,255,255,.12); flex-shrink: 0; padding: 0 24px; }

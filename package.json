@@ -9,22 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.43.1",
+    "cookie": "^1.0.2",
+    "fuse.js": "^7.0.0",
+    "html2canvas": "^1.4.1",
     "next": "14.2.3",
+    "papaparse": "^5.4.1",
     "react": "^18",
     "react-dom": "^18",
-    "@supabase/supabase-js": "^2.43.1",
-    "papaparse": "^5.4.1",
-    "xlsx": "^0.18.5",
-    "fuse.js": "^7.0.0",
-    "html2canvas": "^1.4.1"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/papaparse": "^5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@types/papaparse": "^5",
-    "typescript": "^5",
     "eslint": "^8",
-    "eslint-config-next": "14.2.3"
+    "eslint-config-next": "14.2.3",
+    "typescript": "^5"
   }
 }

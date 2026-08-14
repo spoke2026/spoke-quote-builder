@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
+import { requireUser } from '@/lib/supabase/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const user = await requireUser(req, res);
+  if (!user) return;
   if (req.method === 'POST') return handleSave(req, res);
   if (req.method === 'PUT') return handleUpdate(req, res);
   return res.status(405).json({ error: 'Method not allowed' });

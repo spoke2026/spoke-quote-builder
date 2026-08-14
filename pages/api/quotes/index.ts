@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
+import { requireUser } from '@/lib/supabase/api';
 export const config = {
   api: {
     bodyParser: {
@@ -8,6 +9,8 @@ export const config = {
   },
 };
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const user = await requireUser(req, res);
+  if (!user) return;
   if (req.method === 'GET') return handleGet(req, res);
   if (req.method === 'POST') return handlePost(req, res);
   if (req.method === 'PUT') return handlePut(req, res);

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
+import { requireUser } from '@/lib/supabase/api';
 
 /**
  * GET /api/products/search?q=staple+tee&tier=T1&limit=50
@@ -8,6 +9,8 @@ import { supabaseAdmin } from '@/lib/supabase';
  * Falls back to full list when q is empty.
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const user = await requireUser(req, res);
+  if (!user) return;
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

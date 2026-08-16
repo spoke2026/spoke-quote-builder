@@ -353,7 +353,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
    DM Sans throughout, DM Mono for data, square geometry. */
 :root{--mineral:#40514F;--mineral-deep:#33403D;--zest:#BEDA81;--zest-hover:#CBE39A;--stone:#EDEDE1;--muted:rgba(64,81,79,.80);--line:rgba(64,81,79,.18);--hairline:rgba(64,81,79,.10);--radius:0px;--font:'DM Sans',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;--data-font:'DM Mono',ui-monospace,Consolas,monospace}
 *{box-sizing:border-box}
-body{margin:0;background:var(--mineral-deep);color:var(--mineral-deep);font-family:var(--font);font-size:15px;line-height:1.55}
+body{margin:0;background:var(--stone);color:var(--mineral-deep);font-family:var(--font);font-size:15px;line-height:1.55}
 button{border:0;border-radius:var(--radius);background:var(--zest);color:#28332F;font-family:var(--font);font-weight:700;font-size:.95rem;min-height:44px;padding:12px 20px;cursor:pointer}
 button:hover{background:var(--zest-hover)}
 :where(a,button,input):focus-visible{outline:3px solid var(--mineral);outline-offset:2px;box-shadow:0 0 0 3px var(--zest)}
@@ -427,7 +427,7 @@ footer{background:var(--mineral);border-top:1px solid rgba(255,255,255,.16);padd
 .cat-tab:hover{color:var(--mineral-deep);background:none}
 .cat-tab.active{color:var(--mineral-deep);border-bottom-color:var(--zest);background:none}
 .cat-heading{padding:40px 58px 8px;font-size:36px;line-height:1.08;letter-spacing:-.035em;font-weight:650;color:var(--mineral-deep);}
-.output-actions{padding:16px;text-align:right;background:var(--mineral-deep)}
+.output-actions{padding:16px;text-align:right;background:var(--stone)}
 .output-actions button:focus-visible{outline:3px solid var(--zest);outline-offset:3px;box-shadow:none}
 @media(max-width:980px){
   .hero,.intro,.product-card,.cta{grid-template-columns:1fr}

@@ -123,50 +123,43 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-      <div style={{ background: '#40514F', borderRadius: '8px', width: '100%', maxWidth: '760px', maxHeight: '90vh', overflow: 'auto', color: '#fff' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="spoke-modal-scrim">
+      <div className="spoke-modal">
+        <div className="spoke-modal-head">
           <div>
-            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontStyle: 'italic', fontSize: '22px', color: '#BEDA81' }}>Add Product from URL</div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>Paste a supplier product URL and we&apos;ll extract the details</div>
+            <div className="spoke-modal-title">Add Product from URL</div>
+            <div className="spoke-modal-sub">Paste a supplier product URL and we&apos;ll extract the details</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '24px', cursor: 'pointer' }}>×</button>
+          <button onClick={onClose} className="spoke-modal-close" aria-label="Close">×</button>
         </div>
 
-        <div style={{ padding: '20px 24px' }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-            <input value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleExtract()}
-              placeholder="https://www.eskosafety.com/products/..."
-              style={{ flex: 1, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: '#fff', padding: '10px 12px', fontSize: '13px' }} />
-            <button onClick={handleExtract} disabled={loading || !url.trim()}
-              style={{ background: '#BEDA81', color: '#40514F', border: 'none', borderRadius: '4px', padding: '10px 20px', fontWeight: '800', fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', opacity: loading ? 0.5 : 1, whiteSpace: 'nowrap' }}>
+        <div className="spoke-modal-body">
+          <div className="url-row">
+            <input className="spoke-input" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleExtract()}
+              placeholder="https://www.eskosafety.com/products/..." />
+            <button onClick={handleExtract} disabled={loading || !url.trim()} className="spoke-btn spoke-btn--primary spoke-btn--compact">
               {loading ? 'Extracting...' : 'Extract'}
             </button>
           </div>
 
           {status && (
-            <div style={{ padding: '10px 12px', borderRadius: '4px', marginBottom: '16px', fontSize: '13px',
-              background: status.startsWith('Error') ? 'rgba(255,80,80,0.15)' : 'rgba(190,218,129,0.15)',
-              color: status.startsWith('Error') ? '#ff9999' : '#BEDA81',
-              border: `1px solid ${status.startsWith('Error') ? 'rgba(255,80,80,0.3)' : 'rgba(190,218,129,0.3)'}` }}>
+            <div className={`spoke-alert ${status.startsWith('Error') ? 'spoke-alert--error' : 'spoke-alert--info'}`} role="status">
               {status}
             </div>
           )}
 
           {/* Duplicate warning */}
           {duplicateInfo && (
-            <div style={{ padding: '14px', borderRadius: '4px', marginBottom: '16px', background: 'rgba(255,160,0,0.15)', border: '1px solid rgba(255,160,0,0.4)', fontSize: '13px' }}>
-              <div style={{ color: '#ffcc00', fontWeight: '700', marginBottom: '8px' }}>⚠ Product already exists</div>
-              <div style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '12px' }}>
+            <div className="spoke-alert spoke-alert--warning" role="alert">
+              <div className="spoke-alert-title">⚠ Product already exists</div>
+              <div className="dup-body">
                 A product with SKU &quot;{product?.supplierSku}&quot; already exists: &quot;{duplicateInfo.existingName}&quot;
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => handleSave(true)}
-                  style={{ background: '#BEDA81', color: '#40514F', border: 'none', borderRadius: '3px', padding: '8px 16px', fontWeight: '700', fontSize: '12px', cursor: 'pointer' }}>
+              <div className="dup-actions">
+                <button onClick={() => handleSave(true)} className="spoke-btn spoke-btn--primary spoke-btn--compact">
                   Update existing product
                 </button>
-                <button onClick={() => setDuplicateInfo(null)}
-                  style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '3px', padding: '8px 16px', fontSize: '12px', cursor: 'pointer' }}>
+                <button onClick={() => setDuplicateInfo(null)} className="spoke-btn spoke-btn--secondary spoke-btn--compact">
                   Cancel
                 </button>
               </div>
@@ -174,8 +167,8 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
           )}
 
           {product && !duplicateInfo && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <>
+              <div className="spoke-modal-grid">
                 <Field label="Product Name" value={product.name} onChange={v => updateField('name', v)} />
                 <Field label="Supplier SKU / Code" value={product.supplierSku} onChange={v => updateField('supplierSku', v)} />
                 <Field label="Spoke SKU" value={product.spokeSku || ''} onChange={v => updateField('spokeSku', v)} />
@@ -188,61 +181,72 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
               <Field label="Short Description" value={product.shortDescription} onChange={v => updateField('shortDescription', v)} />
               <FieldTextarea label="Full Description" value={product.description} onChange={v => updateField('description', v)} />
               <Field label="Composition / Materials" value={product.composition || ''} onChange={v => updateField('composition', v)} />
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '6px' }}>Features (one per line)</label>
-                <textarea value={product.features?.join('\n') || ''} onChange={e => updateField('features', e.target.value.split('\n'))} rows={4}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '9px 11px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }} />
+
+              <div className="spoke-field">
+                <label htmlFor="url-features">Features (one per line)</label>
+                <textarea id="url-features" className="spoke-textarea" rows={4}
+                  value={product.features?.join('\n') || ''}
+                  onChange={e => updateField('features', e.target.value.split('\n'))} />
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '8px' }}>Images — tick to include</label>
-                <div style={{ marginBottom: '10px' }}>
-                  <input type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }} />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px' }}>
+
+              <div className="spoke-field">
+                <label htmlFor="url-images">Images — tick to include</label>
+                <input id="url-images" type="file" accept="image/*" multiple onChange={handleImageUpload} className="spoke-file" />
+                <div className="spoke-image-grid">
                   {[...(product.imageUrls || []), ...uploadedImages].map((img, i) => (
                     <div key={i} onClick={() => toggleImage(img)}
-                      style={{ border: `2px solid ${selectedImages.includes(img) ? '#BEDA81' : 'rgba(255,255,255,0.15)'}`, borderRadius: '4px', overflow: 'hidden', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', position: 'relative' }}>
-                      <img src={img} alt="" style={{ width: '100%', height: '80px', objectFit: 'contain', background: '#fff' }}
+                      className={`spoke-image-tile spoke-image-tile--selectable${selectedImages.includes(img) ? ' spoke-image-tile--selected' : ''}`}>
+                      <img src={img} alt=""
                         onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       {selectedImages.includes(img) && (
-                        <div style={{ position: 'absolute', top: '4px', right: '4px', background: '#BEDA81', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: '#40514F', fontWeight: '700' }}>✓</div>
+                        <div className="spoke-image-tick">✓</div>
                       )}
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>{selectedImages.length} image{selectedImages.length !== 1 ? 's' : ''} selected</div>
+                <div className="image-count">{selectedImages.length} image{selectedImages.length !== 1 ? 's' : ''} selected</div>
               </div>
-              <div style={{ background: 'rgba(190,218,129,0.1)', border: '1px solid rgba(190,218,129,0.3)', borderRadius: '4px', padding: '12px', fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
-                <strong style={{ color: '#BEDA81' }}>Pricing:</strong> Saved with $0.00 pricing. Add T1/T2/T3 prices in Google Sheet, then click &quot;Sync from Google Sheets&quot;.
+
+              <div className="spoke-alert spoke-alert--info">
+                <strong>Pricing:</strong> Saved with $0.00 pricing. Add T1/T2/T3 prices in Google Sheet, then click &quot;Sync from Google Sheets&quot;.
               </div>
-              <button onClick={() => handleSave(false)} disabled={saving}
-                style={{ background: '#BEDA81', color: '#40514F', border: 'none', borderRadius: '4px', padding: '14px 24px', fontWeight: '800', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', opacity: saving ? 0.5 : 1 }}>
+
+              <button onClick={() => handleSave(false)} disabled={saving} className="spoke-btn spoke-btn--primary">
                 {saving ? 'Saving...' : 'Save Product'}
               </button>
-            </div>
+            </>
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        .url-row { display: flex; gap: 8px; }
+        .url-row :global(.spoke-input) { flex: 1; min-width: 0; }
+        .url-row :global(.spoke-btn) { white-space: nowrap; }
+        .dup-body { margin-bottom: 12px; }
+        .dup-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .image-count { font-size: .78rem; color: var(--spoke-mineral-80); margin-top: 6px; }
+      `}</style>
     </div>
   );
 }
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '4px' }}>{label}</label>
-      <input value={value || ''} onChange={e => onChange(e.target.value)}
-        style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit' }} />
+    <div className="spoke-field">
+      <label>{label}
+        <input className="spoke-input" value={value || ''} onChange={e => onChange(e.target.value)} />
+      </label>
     </div>
   );
 }
 
 function FieldTextarea({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '4px' }}>{label}</label>
-      <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3}
-        style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }} />
+    <div className="spoke-field">
+      <label>{label}
+        <textarea className="spoke-textarea" rows={3} value={value || ''} onChange={e => onChange(e.target.value)} />
+      </label>
     </div>
   );
 }

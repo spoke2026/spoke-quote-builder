@@ -44,12 +44,12 @@ export default function Login() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&display=swap"
           rel="stylesheet"
         />
       </Head>
 
-      <main className="login-shell">
+      <main className="login-shell spoke-on-mineral">
         <section className="login-panel" aria-labelledby="login-title">
           <img
             src="/spoke-logo-landscape-white.png"
@@ -110,19 +110,6 @@ export default function Login() {
           <p className="login-footnote">Authorised users only.</p>
         </section>
       </main>
-
-      <style jsx global>{`
-        *,
-        *::before,
-        *::after {
-          box-sizing: border-box;
-        }
-        html,
-        body {
-          margin: 0;
-          padding: 0;
-        }
-      `}</style>
 
       <style jsx>{`
         .login-shell {

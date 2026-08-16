@@ -1,0 +1,415 @@
+/* Spoke digital brand standard v1.1 — tokens and base.
+   Colours, geometry and type come from here. Do not add local variants. */
+
+:root {
+  --spoke-mineral: #40514F;
+  --spoke-mineral-deep: #33403D;
+  --spoke-zest: #BEDA81;
+  --spoke-zest-hover: #CBE39A;
+  --spoke-stone: #EDEDE1;
+  --spoke-white: #FFFFFF;
+
+  --spoke-success: #52765D;
+  --spoke-warning: #A66B2C;
+  --spoke-error: #9B4A43;
+  --spoke-error-on-mineral: #F5D8D2;
+
+  --spoke-surface-0: var(--spoke-stone);
+  --spoke-surface-1: var(--spoke-white);
+  --spoke-surface-2: var(--spoke-mineral);
+
+  --spoke-white-90: rgba(255, 255, 255, .90);
+  --spoke-white-78: rgba(255, 255, 255, .78);
+  --spoke-white-68: rgba(255, 255, 255, .68);
+  --spoke-white-42: rgba(255, 255, 255, .42);
+  --spoke-white-25: rgba(255, 255, 255, .25);
+  --spoke-white-16: rgba(255, 255, 255, .16);
+  --spoke-white-09: rgba(255, 255, 255, .09);
+  --spoke-white-06: rgba(255, 255, 255, .06);
+
+  --spoke-mineral-80: rgba(64, 81, 79, .80);
+  --spoke-mineral-68: rgba(64, 81, 79, .68);
+  --spoke-mineral-42: rgba(64, 81, 79, .42);
+  --spoke-mineral-24: rgba(64, 81, 79, .24);
+  --spoke-mineral-18: rgba(64, 81, 79, .18);
+  --spoke-mineral-10: rgba(64, 81, 79, .10);
+
+  --spoke-font: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --spoke-data-font: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --spoke-space-1: .5rem;
+  --spoke-space-2: 1rem;
+  --spoke-space-3: 1.5rem;
+  --spoke-space-4: 2rem;
+  --spoke-space-5: 3rem;
+  --spoke-space-6: 4rem;
+
+  --spoke-control-height: 54px;
+  --spoke-touch-min: 44px;
+  --spoke-radius: 0px;
+
+  --spoke-transition-fast: 150ms ease;
+  --spoke-transition: 160ms ease;
+
+  --spoke-content-max: 1200px;
+  --spoke-text-max: 680px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--spoke-surface-0);
+  color: var(--spoke-mineral-deep);
+  font-family: var(--spoke-font);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+/* The Zest focus ring is Spoke's interaction signature, but Zest alone is only
+   ~1.3:1 on Stone and White. The Mineral outline carries the WCAG 2.2 non-text
+   3:1 requirement on light surfaces; on Mineral surfaces Zest alone is 5.40:1. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--spoke-mineral);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--spoke-zest);
+}
+
+.spoke-on-mineral :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--spoke-zest);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* ── Modals ───────────────────────────────────────────────────────────────
+   White functional surface on a Mineral scrim. Square, no shadow stack. */
+
+.spoke-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(51, 64, 61, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spoke-space-2);
+}
+
+.spoke-modal {
+  background: var(--spoke-surface-1);
+  border-radius: var(--spoke-radius);
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow: auto;
+  color: var(--spoke-mineral-deep);
+}
+
+.spoke-modal-head {
+  padding: var(--spoke-space-3);
+  border-bottom: 1px solid var(--spoke-mineral-18);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spoke-space-2);
+}
+
+.spoke-modal-title {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 650;
+  color: var(--spoke-mineral-deep);
+}
+
+.spoke-modal-sub {
+  font-size: .86rem;
+  color: var(--spoke-mineral-80);
+  margin-top: .25rem;
+}
+
+.spoke-modal-close {
+  background: none;
+  border: 0;
+  color: var(--spoke-mineral-80);
+  font-size: 24px;
+  line-height: 1;
+  width: var(--spoke-touch-min);
+  height: var(--spoke-touch-min);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.spoke-modal-close:hover {
+  color: var(--spoke-mineral-deep);
+}
+
+.spoke-modal-body {
+  padding: var(--spoke-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spoke-space-2);
+}
+
+.spoke-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spoke-space-2);
+}
+
+@media (max-width: 620px) {
+  .spoke-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Form primitives ─────────────────────────────────────────────────── */
+
+.spoke-field {
+  display: grid;
+  gap: .4rem;
+}
+
+.spoke-field > label {
+  display: grid;
+  gap: .4rem;
+  font-size: .78rem;
+  font-weight: 650;
+  color: var(--spoke-mineral-deep);
+}
+
+.spoke-input,
+.spoke-textarea {
+  width: 100%;
+  min-height: var(--spoke-touch-min);
+  border-radius: var(--spoke-radius);
+  border: 1px solid var(--spoke-mineral-24);
+  background: var(--spoke-white);
+  color: var(--spoke-mineral-deep);
+  padding: .6rem .75rem;
+  font-size: .95rem;
+  font-weight: 400;
+  line-height: 1.5;
+  transition: border-color var(--spoke-transition);
+}
+
+.spoke-input:hover,
+.spoke-textarea:hover {
+  border-color: var(--spoke-mineral-42);
+}
+
+.spoke-input::placeholder,
+.spoke-textarea::placeholder {
+  color: var(--spoke-mineral-42);
+}
+
+.spoke-textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.spoke-file {
+  font-size: .82rem;
+  color: var(--spoke-mineral-80);
+  width: 100%;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+
+.spoke-btn {
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .75rem 1.25rem;
+  border-radius: var(--spoke-radius);
+  border: 1px solid transparent;
+  font-weight: 700;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: background var(--spoke-transition-fast), border-color var(--spoke-transition-fast);
+}
+
+.spoke-btn--primary {
+  background: var(--spoke-zest);
+  color: #28332F;
+}
+
+.spoke-btn--primary:hover:not(:disabled) {
+  background: var(--spoke-zest-hover);
+}
+
+.spoke-btn--secondary {
+  background: transparent;
+  color: var(--spoke-mineral-deep);
+  border-color: var(--spoke-mineral-42);
+  font-weight: 650;
+}
+
+.spoke-btn--secondary:hover:not(:disabled) {
+  background: var(--spoke-mineral-10);
+}
+
+.spoke-btn--compact {
+  min-height: var(--spoke-touch-min);
+  padding: .6rem 1rem;
+  font-size: .88rem;
+}
+
+.spoke-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* ── Status messages ─────────────────────────────────────────────────── */
+
+.spoke-alert {
+  padding: .75rem 1rem;
+  font-size: .9rem;
+  border-radius: var(--spoke-radius);
+  border-left: 3px solid var(--spoke-mineral-42);
+  background: var(--spoke-stone);
+  color: var(--spoke-mineral-deep);
+}
+
+.spoke-alert--error {
+  border-left-color: var(--spoke-error);
+}
+
+.spoke-alert--warning {
+  border-left-color: var(--spoke-warning);
+}
+
+.spoke-alert--info {
+  border-left-color: var(--spoke-zest);
+}
+
+.spoke-alert-title {
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+
+/* ── Image pickers ───────────────────────────────────────────────────── */
+
+.spoke-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: .5rem;
+}
+
+.spoke-image-tile {
+  position: relative;
+  border: 2px solid var(--spoke-mineral-18);
+  border-radius: var(--spoke-radius);
+  overflow: hidden;
+  background: var(--spoke-white);
+}
+
+.spoke-image-tile img {
+  width: 100%;
+  height: 80px;
+  object-fit: contain;
+  background: var(--spoke-white);
+  display: block;
+}
+
+.spoke-image-tile--selectable {
+  cursor: pointer;
+}
+
+.spoke-image-tile--selected {
+  border-color: var(--spoke-zest);
+}
+
+.spoke-image-tick {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--spoke-zest);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #28332F;
+  font-weight: 700;
+}
+
+.spoke-image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--spoke-white);
+  border: 1px solid var(--spoke-error);
+  color: var(--spoke-error);
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Read-only pricing display ───────────────────────────────────────── */
+
+.spoke-price-panel {
+  background: var(--spoke-stone);
+  border: 1px solid var(--spoke-mineral-18);
+  border-radius: var(--spoke-radius);
+  padding: var(--spoke-space-2);
+}
+
+.spoke-price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+
+.spoke-price-tile {
+  background: var(--spoke-white);
+  padding: .75rem;
+  text-align: center;
+}
+
+.spoke-price-tile-label {
+  font-size: .74rem;
+  color: var(--spoke-mineral-80);
+  margin-bottom: .25rem;
+}
+
+.spoke-price-tile-value {
+  font-family: var(--spoke-data-font);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--spoke-mineral-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

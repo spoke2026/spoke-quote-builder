@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface ProductData {
   id: string;
@@ -90,20 +90,20 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-      <div style={{ background: '#40514F', borderRadius: '8px', width: '100%', maxWidth: '760px', maxHeight: '90vh', overflow: 'auto', color: '#fff' }}>
-        
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="spoke-modal-scrim">
+      <div className="spoke-modal">
+
+        <div className="spoke-modal-head">
           <div>
-            <div style={{ fontFamily: 'DM Serif Display, Georgia, serif', fontStyle: 'italic', fontSize: '22px', color: '#BEDA81' }}>Edit Product</div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>{product.name}</div>
+            <div className="spoke-modal-title">Edit Product</div>
+            <div className="spoke-modal-sub">{product.name}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '24px', cursor: 'pointer' }}>×</button>
+          <button onClick={onClose} className="spoke-modal-close" aria-label="Close">×</button>
         </div>
 
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div className="spoke-modal-body">
+
+          <div className="spoke-modal-grid">
             <Field label="Product Name" value={form.name} onChange={v => update('name', v)} />
             <Field label="Supplier SKU" value={form.supplierSku} onChange={v => update('supplierSku', v)} />
             <Field label="Spoke SKU" value={form.spokeSku} onChange={v => update('spokeSku', v)} />
@@ -118,54 +118,48 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
           <FieldTextarea label="Full Description" value={form.description} onChange={v => update('description', v)} />
           <Field label="Composition / Materials" value={form.composition} onChange={v => update('composition', v)} />
 
-          <div>
-            <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '4px' }}>Features (one per line)</label>
-            <textarea value={form.features.join('\n')} onChange={e => setForm(prev => ({ ...prev, features: e.target.value.split('\n') }))} rows={4}
-              style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }} />
+          <div className="spoke-field">
+            <label htmlFor="edit-features">Features (one per line)</label>
+            <textarea id="edit-features" className="spoke-textarea" rows={4}
+              value={form.features.join('\n')}
+              onChange={e => setForm(prev => ({ ...prev, features: e.target.value.split('\n') }))} />
           </div>
 
           {/* Pricing display (read-only) */}
-          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '12px 14px' }}>
-            <div style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '8px' }}>Current Pricing (edit in Google Sheet)</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+          <div className="spoke-price-panel">
+            <div className="spoke-alert-title">Current Pricing (edit in Google Sheet)</div>
+            <div className="spoke-price-grid">
               {[['T1', product.t1_price], ['T2', product.t2_price], ['T3', product.t3_price]].map(([tier, price]) => (
-                <div key={tier as string} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '3px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginBottom: '2px' }}>{tier}</div>
-                  <div style={{ fontSize: '15px', fontWeight: '700', color: '#BEDA81' }}>${Number(price || 0).toFixed(2)}</div>
+                <div key={tier as string} className="spoke-price-tile">
+                  <div className="spoke-price-tile-label">{tier}</div>
+                  <div className="spoke-price-tile-value">${Number(price || 0).toFixed(2)}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Images */}
-          <div>
-            <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '8px' }}>
-              Images
-            </label>
-            <input type="file" accept="image/*" multiple onChange={handleImageUpload}
-              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginBottom: '10px', display: 'block' }} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '8px' }}>
+          <div className="spoke-field">
+            <label htmlFor="edit-images">Images</label>
+            <input id="edit-images" type="file" accept="image/*" multiple onChange={handleImageUpload} className="spoke-file" />
+            <div className="spoke-image-grid">
               {form.imageUrls.map((img, i) => (
-                <div key={i} style={{ position: 'relative', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '4px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
-                  <img src={img} alt="" style={{ width: '100%', height: '72px', objectFit: 'contain', background: '#fff' }}
+                <div key={i} className="spoke-image-tile">
+                  <img src={img} alt=""
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                  <button onClick={() => removeImage(i)}
-                    style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(255,0,0,0.7)', border: 'none', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ×
-                  </button>
+                  <button onClick={() => removeImage(i)} className="spoke-image-remove" aria-label="Remove image">×</button>
                 </div>
               ))}
             </div>
           </div>
 
           {status && (
-            <div style={{ padding: '10px 12px', borderRadius: '4px', fontSize: '13px', background: 'rgba(255,80,80,0.15)', color: '#ff9999', border: '1px solid rgba(255,80,80,0.3)' }}>
+            <div className="spoke-alert spoke-alert--error" role="alert">
               {status}
             </div>
           )}
 
-          <button onClick={handleSave} disabled={saving}
-            style={{ background: '#BEDA81', color: '#40514F', border: 'none', borderRadius: '4px', padding: '14px 24px', fontWeight: '800', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', opacity: saving ? 0.5 : 1 }}>
+          <button onClick={handleSave} disabled={saving} className="spoke-btn spoke-btn--primary">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
@@ -176,20 +170,20 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '4px' }}>{label}</label>
-      <input value={value || ''} onChange={e => onChange(e.target.value)}
-        style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit' }} />
+    <div className="spoke-field">
+      <label>{label}
+        <input className="spoke-input" value={value || ''} onChange={e => onChange(e.target.value)} />
+      </label>
     </div>
   );
 }
 
 function FieldTextarea({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label style={{ display: 'block', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#BEDA81', fontWeight: '700', marginBottom: '4px' }}>{label}</label>
-      <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={3}
-        style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '4px', color: '#fff', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }} />
+    <div className="spoke-field">
+      <label>{label}
+        <textarea className="spoke-textarea" rows={3} value={value || ''} onChange={e => onChange(e.target.value)} />
+      </label>
     </div>
   );
 }

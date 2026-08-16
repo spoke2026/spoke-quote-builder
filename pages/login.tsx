@@ -49,60 +49,66 @@ export default function Login() {
         />
       </Head>
 
-      <main className="login-screen">
-        <div className="login-card">
+      <main className="login-shell">
+        <section className="login-panel" aria-labelledby="login-title">
           <img
             src="/spoke-logo-landscape-white.png"
             alt="Spoke"
             className="login-logo"
           />
-          <div className="login-subtitle">Quote Builder</div>
+
+          <div className="login-intro">
+            <p className="login-eyebrow">Quote builder</p>
+            <h1 id="login-title" className="login-title">
+              Let&rsquo;s build a quote.
+            </h1>
+            <p className="login-lede">Sign in to build and send customer quotes.</p>
+          </div>
 
           <form className="login-form" onSubmit={handleSubmit} noValidate>
+            <label htmlFor="email" className="login-label">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              inputMode="email"
+              className="login-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+              autoFocus
+            />
+
+            <label htmlFor="password" className="login-label">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              className="login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+
             {error ? (
               <p className="login-alert" role="alert">
                 {error}
               </p>
             ) : null}
 
-            <div className="login-field">
-              <label htmlFor="email" className="login-label">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="login-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-                autoFocus
-              />
-            </div>
-
-            <div className="login-field">
-              <label htmlFor="password" className="login-label">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                className="login-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
-            </div>
-
             <button type="submit" className="login-btn" disabled={submitting}>
-              {submitting ? "Logging in" : "Log in"}
+              {submitting ? "Signing in" : "Sign in"}
             </button>
           </form>
-        </div>
+
+          <p className="login-footnote">Authorised users only.</p>
+        </section>
       </main>
 
       <style jsx global>{`
@@ -119,98 +125,172 @@ export default function Login() {
       `}</style>
 
       <style jsx>{`
-        .login-screen {
-          font-family: "DM Sans", system-ui, sans-serif;
-          min-height: 100vh;
+        .login-shell {
+          font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+          min-height: 100svh;
           background: #40514f;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
+          color: #ffffff;
+          display: grid;
+          place-items: center;
+          padding: clamp(1.25rem, 4vw, 3rem);
+          position: relative;
+          overflow: hidden;
         }
-        .login-card {
-          width: 100%;
-          max-width: 360px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+        .login-shell::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+              120deg,
+              rgba(255, 255, 255, 0.025),
+              transparent 45%
+            ),
+            radial-gradient(
+              circle at 88% 12%,
+              rgba(190, 218, 129, 0.13),
+              transparent 34%
+            );
+          pointer-events: none;
+        }
+        .login-panel {
+          width: min(100%, 29rem);
+          position: relative;
+          z-index: 1;
         }
         .login-logo {
-          height: 44px;
-          width: auto;
+          width: 10rem;
+          height: auto;
           display: block;
+          margin-bottom: clamp(3rem, 9vh, 5.5rem);
         }
-        .login-subtitle {
-          font-size: 11px;
-          letter-spacing: 0.16em;
+        .login-intro {
+          margin-bottom: 2rem;
+        }
+        .login-eyebrow {
+          margin: 0 0 0.8rem;
+          color: #beda81;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.5);
-          margin-top: 10px;
-          margin-bottom: 28px;
+          letter-spacing: 0.14em;
+          font-size: 0.72rem;
+          font-weight: 700;
+        }
+        .login-title {
+          margin: 0;
+          font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+          font-style: normal;
+          font-size: clamp(2.5rem, 9vw, 4.5rem);
+          line-height: 0.98;
+          letter-spacing: -0.055em;
+          font-weight: 650;
+          color: #ffffff;
+        }
+        .login-lede {
+          margin: 1rem 0 0;
+          color: rgba(255, 255, 255, 0.68);
+          font-size: 1rem;
+          line-height: 1.55;
         }
         .login-form {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .login-alert {
-          margin: 0;
-          background: rgba(255, 120, 120, 0.12);
-          border: 1px solid rgba(255, 120, 120, 0.4);
-          color: #ffb3b3;
-          border-radius: 8px;
-          padding: 10px 12px;
-          font-size: 13px;
-        }
-        .login-field {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
+          display: grid;
+          gap: 0.65rem;
         }
         .login-label {
-          font-size: 13px;
-          font-weight: 500;
-          color: rgba(255, 255, 255, 0.85);
+          margin-top: 0.55rem;
+          font-size: 0.78rem;
+          font-weight: 650;
+          color: rgba(255, 255, 255, 0.78);
         }
         .login-input {
           width: 100%;
-          height: 40px;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 8px;
-          color: #fff;
-          padding: 0 12px;
-          font-family: "DM Sans", system-ui, sans-serif;
-          font-size: 14px;
+          min-height: 3.35rem;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          border-radius: 0;
+          background: rgba(255, 255, 255, 0.06);
+          color: #ffffff;
+          padding: 0.85rem 1rem;
+          font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+          font-size: 1rem;
           outline: none;
+          transition: border-color 160ms ease, background 160ms ease,
+            box-shadow 160ms ease;
+        }
+        .login-input:hover {
+          border-color: rgba(255, 255, 255, 0.42);
         }
         .login-input:focus {
           border-color: #beda81;
-          box-shadow: 0 0 0 3px rgba(147, 175, 82, 0.45);
+          background: rgba(255, 255, 255, 0.085);
+          box-shadow: 0 0 0 3px rgba(190, 218, 129, 0.16);
         }
         .login-btn {
-          height: 40px;
+          width: 100%;
+          min-height: 3.35rem;
+          margin-top: 0.9rem;
+          border: 0;
+          border-radius: 0;
           background: #beda81;
-          color: #40514f;
-          border: none;
-          border-radius: 8px;
-          font-family: "DM Sans", system-ui, sans-serif;
-          font-size: 14px;
-          font-weight: 600;
+          color: #28332f;
+          font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+          font-size: 1rem;
+          font-weight: 700;
           cursor: pointer;
-          margin-top: 4px;
+          transition: transform 150ms ease, background 150ms ease;
         }
         .login-btn:hover:not(:disabled) {
-          background: #b0d06b;
+          background: #cbe39a;
+        }
+        .login-btn:active:not(:disabled) {
+          transform: translateY(1px);
         }
         .login-btn:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(147, 175, 82, 0.45);
+          outline: 3px solid #ffffff;
+          outline-offset: 3px;
         }
         .login-btn:disabled {
-          opacity: 0.6;
+          opacity: 0.7;
           cursor: not-allowed;
+        }
+        .login-alert {
+          margin: 0.65rem 0 0;
+          padding: 0.8rem 0;
+          color: #f5d8d2;
+          font-size: 0.86rem;
+          border-top: 1px solid rgba(245, 216, 210, 0.24);
+          border-bottom: 1px solid rgba(245, 216, 210, 0.24);
+        }
+        .login-footnote {
+          margin: 1.4rem 0 0;
+          font-size: 0.72rem;
+          color: rgba(255, 255, 255, 0.42);
+        }
+        @media (max-width: 520px) {
+          .login-shell {
+            place-items: start stretch;
+            padding-top: max(2rem, env(safe-area-inset-top));
+          }
+          .login-panel {
+            width: 100%;
+            min-height: calc(100svh - 4rem);
+            display: flex;
+            flex-direction: column;
+          }
+          .login-logo {
+            margin-bottom: auto;
+            padding-top: 0.5rem;
+          }
+          .login-intro {
+            margin-top: 4rem;
+          }
+          .login-footnote {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .login-shell *,
+          .login-shell *::before,
+          .login-shell *::after {
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
     </>

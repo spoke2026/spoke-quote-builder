@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
-import { uploadImage } from '@/lib/uploads';
+import { uploadImage, MAX_EDGE_HERO, MAX_EDGE_LOGO } from '@/lib/uploads';
 const ProductFromUrlModal = dynamic(() => import('@/components/ProductFromUrlModal'), { ssr: false });
 const EditProductModal = dynamic(() => import('@/components/EditProductModal'), { ssr: false });
 
@@ -139,12 +139,12 @@ export default function QuoteBuilder() {
 
   useEffect(() => { doSearch(''); }, [doSearch]);
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, setter: (d: string) => void, label: string) {
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, setter: (d: string) => void, label: string, maxEdge: number) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadMsg(`Uploading ${label}…`);
     try {
-      setter(await uploadImage(file, 'quote'));
+      setter(await uploadImage(file, 'quote', { maxEdge }));
       setUploadMsg('');
     } catch (err: unknown) {
       setUploadMsg(err instanceof Error ? err.message : "That image didn't upload. Try again.");
@@ -500,11 +500,11 @@ export default function QuoteBuilder() {
                 <label>Contact phone<input value={contactPhone} onChange={e => setContactPhone(e.target.value)} /></label>
                 <label>Setup fee text<input value={setupFee} onChange={e => setSetupFee(e.target.value)} /></label>
                 <label>Customer logo
-                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setCustomerLogo, 'customer logo')} />
+                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setCustomerLogo, 'customer logo', MAX_EDGE_LOGO)} />
                   {customerLogo && <img src={customerLogo} alt="logo preview" className="file-preview" />}
                 </label>
                 <label>Hero image
-                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setHeroImage, 'hero image')} />
+                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setHeroImage, 'hero image', MAX_EDGE_HERO)} />
                   {heroImage && <img src={heroImage} alt="hero preview" className="file-preview" />}
                 </label>
                 {uploadMsg && (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { uploadImages } from '@/lib/uploads';
+import { uploadImages, MAX_EDGE_PRODUCT } from '@/lib/uploads';
 
 interface ProductData {
   id: string;
@@ -60,7 +60,7 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
     setUploading(true);
     setStatus('');
     try {
-      const urls = await uploadImages(list, 'product');
+      const urls = await uploadImages(list, 'product', { maxEdge: MAX_EDGE_PRODUCT });
       setUploadedImages(prev => [...prev, ...urls]);
       setForm(prev => ({ ...prev, imageUrls: [...prev.imageUrls, ...urls] }));
     } catch (err: unknown) {

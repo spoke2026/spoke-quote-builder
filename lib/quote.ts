@@ -353,7 +353,7 @@ export function generateQuoteHTML(config: QuoteConfig, items: QuoteLineItem[]): 
    DM Sans throughout, DM Mono for data, square geometry. */
 :root{--mineral:#40514F;--mineral-deep:#33403D;--zest:#BEDA81;--zest-hover:#CBE39A;--stone:#EDEDE1;--muted:rgba(64,81,79,.80);--line:rgba(64,81,79,.18);--hairline:rgba(64,81,79,.10);--radius:0px;--font:'DM Sans',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;--data-font:'DM Mono',ui-monospace,Consolas,monospace}
 *{box-sizing:border-box}
-body{margin:0;background:var(--stone);color:var(--mineral-deep);font-family:var(--font);font-size:15px;line-height:1.55}
+body{margin:0;background:var(--mineral-deep);color:var(--mineral-deep);font-family:var(--font);font-size:15px;line-height:1.55}
 button{border:0;border-radius:var(--radius);background:var(--zest);color:#28332F;font-family:var(--font);font-weight:700;font-size:.95rem;min-height:44px;padding:12px 20px;cursor:pointer}
 button:hover{background:var(--zest-hover)}
 :where(a,button,input):focus-visible{outline:3px solid var(--mineral);outline-offset:2px;box-shadow:0 0 0 3px var(--zest)}
@@ -369,14 +369,14 @@ button:hover{background:var(--zest-hover)}
 .quote-header{background:var(--mineral);padding:24px 44px;display:flex;align-items:center;justify-content:space-between;gap:24px;color:#fff}
 .quote-logo-img{width:130px;height:auto;display:block}
 .quote-contact{text-align:right;font-size:13px;color:rgba(255,255,255,.78);line-height:1.7}
-.hero{display:grid;grid-template-columns:52% 48%;min-height:520px;background:var(--stone)}
+.hero{display:grid;grid-template-columns:52% 48%;min-height:520px;background:#fff}
 .hero-copy{padding:70px 58px 58px;display:flex;flex-direction:column;justify-content:center}
-.proposal{color:var(--mineral);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px}
+.proposal{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px}
 .client-logo{max-width:330px;max-height:120px;object-fit:contain;margin-bottom:34px;align-self:flex-start}
 .hero h1{margin:0 0 18px;font-size:clamp(44px,6vw,74px);line-height:.98;letter-spacing:-.05em;font-weight:650;color:var(--mineral-deep)}
 .hero h1 em{font-style:normal;color:var(--mineral-deep);text-decoration:underline;text-decoration-color:var(--zest);text-decoration-thickness:.07em;text-underline-offset:.08em}
-.hero p{color:var(--mineral);font-size:18px;max-width:440px;margin:0}
-.hero-image{background:linear-gradient(135deg,var(--mineral),var(--mineral-deep));min-height:520px;background-size:cover;background-position:center}
+.hero p{color:var(--muted);font-size:18px;max-width:440px;margin:0}
+.hero-image{background:#fff;min-height:520px;background-size:cover;background-position:center}
 .fit-bar{background:var(--mineral);color:rgba(255,255,255,.90);padding:22px 58px;letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:700}
 .intro{padding:46px 58px 18px;display:grid;grid-template-columns:1.1fr .9fr;gap:42px;align-items:end}
 .intro h2{margin:0;color:var(--mineral-deep);font-size:34px;line-height:1.08;letter-spacing:-.035em;font-weight:650}
@@ -418,7 +418,7 @@ td.code{font-family:var(--data-font);font-size:13px;font-weight:500;color:var(--
 .cta a{background:var(--zest);color:#28332F;text-decoration:none;font-weight:700;font-size:1rem;padding:16px 32px;border-radius:var(--radius);white-space:nowrap;display:inline-block}
 .cta a:hover{background:var(--zest-hover)}
 .cta a:focus-visible{outline:3px solid var(--zest);outline-offset:3px;box-shadow:none}
-footer{background:var(--mineral-deep);padding:28px 44px;text-align:center;color:rgba(255,255,255,.68);font-size:12px}
+footer{background:var(--mineral);border-top:1px solid rgba(255,255,255,.16);padding:28px 44px;text-align:center;color:rgba(255,255,255,.68);font-size:12px}
 .footer-logo-img{width:110px;height:auto;display:block;margin:0 auto 12px}
 .category-heading{background:var(--mineral);color:var(--zest);padding:18px 58px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-top:24px}
 .cat-tab-bar{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:0;padding:0 58px;z-index:100;}
@@ -427,7 +427,7 @@ footer{background:var(--mineral-deep);padding:28px 44px;text-align:center;color:
 .cat-tab:hover{color:var(--mineral-deep);background:none}
 .cat-tab.active{color:var(--mineral-deep);border-bottom-color:var(--zest);background:none}
 .cat-heading{padding:40px 58px 8px;font-size:36px;line-height:1.08;letter-spacing:-.035em;font-weight:650;color:var(--mineral-deep);}
-.output-actions{padding:16px;text-align:right;background:var(--stone)}
+.output-actions{padding:16px;text-align:right;background:var(--mineral-deep)}
 .output-actions button:focus-visible{outline:3px solid var(--zest);outline-offset:3px;box-shadow:none}
 @media(max-width:980px){
   .hero,.intro,.product-card,.cta{grid-template-columns:1fr}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
+import { uploadImage } from '@/lib/uploads';
 const ProductFromUrlModal = dynamic(() => import('@/components/ProductFromUrlModal'), { ssr: false });
 const EditProductModal = dynamic(() => import('@/components/EditProductModal'), { ssr: false });
 
@@ -106,6 +107,7 @@ export default function QuoteBuilder() {
   const [syncMsg, setSyncMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'selected' | 'settings' | 'quotes'>('products');
   const [showUrlModal, setShowUrlModal] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState('');
   const categoryOrder = useMemo(
   () => Array.from(new Set(lineItems.map(li => li.category.trim() || '(uncategorised)'))),
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -137,12 +139,16 @@ export default function QuoteBuilder() {
 
   useEffect(() => { doSearch(''); }, [doSearch]);
 
-  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, setter: (d: string) => void) {
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, setter: (d: string) => void, label: string) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => setter(ev.target?.result as string ?? '');
-    reader.readAsDataURL(file);
+    setUploadMsg(`Uploading ${label}…`);
+    try {
+      setter(await uploadImage(file, 'quote'));
+      setUploadMsg('');
+    } catch (err: unknown) {
+      setUploadMsg(err instanceof Error ? err.message : "That image didn't upload. Try again.");
+    }
   }
 
   function addProduct(product: Product) {
@@ -494,13 +500,16 @@ export default function QuoteBuilder() {
                 <label>Contact phone<input value={contactPhone} onChange={e => setContactPhone(e.target.value)} /></label>
                 <label>Setup fee text<input value={setupFee} onChange={e => setSetupFee(e.target.value)} /></label>
                 <label>Customer logo
-                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setCustomerLogo)} />
+                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setCustomerLogo, 'customer logo')} />
                   {customerLogo && <img src={customerLogo} alt="logo preview" className="file-preview" />}
                 </label>
                 <label>Hero image
-                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setHeroImage)} />
+                  <input type="file" accept="image/*" onChange={e => handleFileUpload(e, setHeroImage, 'hero image')} />
                   {heroImage && <img src={heroImage} alt="hero preview" className="file-preview" />}
                 </label>
+                {uploadMsg && (
+                  <p className={`hint ${uploadMsg.startsWith('Uploading') ? '' : 'is-error'}`}>{uploadMsg}</p>
+                )}
               </div>
             </div>
           )}

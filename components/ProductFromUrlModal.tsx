@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadImages } from '@/lib/uploads';
 
 interface ExtractedProduct {
   name: string;
@@ -30,6 +31,7 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [duplicateInfo, setDuplicateInfo] = useState<{ existingId: string; existingName: string } | null>(null);
 
   async function handleExtract() {
@@ -57,18 +59,21 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
     }
   }
 
-  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
-    if (!files) return;
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const dataUrl = ev.target?.result as string;
-        setUploadedImages(prev => [...prev, dataUrl]);
-        setSelectedImages(prev => [...prev, dataUrl]);
-      };
-      reader.readAsDataURL(file);
-    });
+    if (!files || files.length === 0) return;
+    const list = Array.from(files);
+    setUploading(true);
+    setStatus('');
+    try {
+      const urls = await uploadImages(list, 'product');
+      setUploadedImages(prev => [...prev, ...urls]);
+      setSelectedImages(prev => [...prev, ...urls]);
+    } catch (err: unknown) {
+      setStatus('Error: ' + (err instanceof Error ? err.message : "Those images didn't upload. Try again."));
+    } finally {
+      setUploading(false);
+    }
   }
 
   function toggleImage(img: string) {
@@ -191,7 +196,8 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
 
               <div className="spoke-field">
                 <label htmlFor="url-images">Images — tick to include</label>
-                <input id="url-images" type="file" accept="image/*" multiple onChange={handleImageUpload} className="spoke-file" />
+                <input id="url-images" type="file" accept="image/*" multiple onChange={handleImageUpload} className="spoke-file" disabled={uploading} />
+                {uploading && <p className="spoke-help">Uploading images…</p>}
                 <div className="spoke-image-grid">
                   {[...(product.imageUrls || []), ...uploadedImages].map((img, i) => (
                     <div key={i} onClick={() => toggleImage(img)}
@@ -211,7 +217,7 @@ export default function ProductFromUrlModal({ onClose, onSaved }: Props) {
                 <strong>Pricing:</strong> Saved with $0.00 pricing. Add T1/T2/T3 prices in Google Sheet, then click &quot;Sync from Google Sheets&quot;.
               </div>
 
-              <button onClick={() => handleSave(false)} disabled={saving} className="spoke-btn spoke-btn--primary">
+              <button onClick={() => handleSave(false)} disabled={saving || uploading} className="spoke-btn spoke-btn--primary">
                 {saving ? 'Saving...' : 'Save Product'}
               </button>
             </>

@@ -150,7 +150,15 @@ All server-side database operations use `supabaseAdmin` (service role key):
 **Do not use anon key in API routes** - it will fail due to RLS.
 
 ### Product Images
-- Stored as URLs in `image_urls` array (not files in Storage)
+- Stored as URLs in `image_urls` array
+- Uploads go to the public `quote-images` Supabase Storage bucket, created on
+  first use by `/api/uploads/sign`. The browser PUTs straight to Supabase via a
+  signed URL — never through a Vercel function, which hard-caps request bodies
+  at 4.5MB regardless of any `bodyParser.sizeLimit`
+- The bucket must stay public. Customer share links are unauthenticated, so
+  making it private breaks images in every quote already sent
+- Quotes saved before this change still hold base64 data URLs and render fine.
+  There is no migration; both forms work in an `<img src>`
 - Can be from any source: AS Colour, Google Drive, scraped URLs, etc.
 - URLs are cleaned (Google Drive -> CDN redirect, etc.)
 - Search endpoint returns up to 8 images per product

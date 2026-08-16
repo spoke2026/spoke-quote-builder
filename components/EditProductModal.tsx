@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadImages } from '@/lib/uploads';
 
 interface ProductData {
   id: string;
@@ -45,24 +46,28 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
 
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
 
   function update(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
-  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
-    if (!files) return;
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const dataUrl = ev.target?.result as string;
-        setUploadedImages(prev => [...prev, dataUrl]);
-        setForm(prev => ({ ...prev, imageUrls: [...prev.imageUrls, dataUrl] }));
-      };
-      reader.readAsDataURL(file);
-    });
+    if (!files || files.length === 0) return;
+    const list = Array.from(files);
+    setUploading(true);
+    setStatus('');
+    try {
+      const urls = await uploadImages(list, 'product');
+      setUploadedImages(prev => [...prev, ...urls]);
+      setForm(prev => ({ ...prev, imageUrls: [...prev.imageUrls, ...urls] }));
+    } catch (err: unknown) {
+      setStatus(err instanceof Error ? err.message : "Those images didn't upload. Try again.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function removeImage(idx: number) {
@@ -141,7 +146,8 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
           {/* Images */}
           <div className="spoke-field">
             <label htmlFor="edit-images">Images</label>
-            <input id="edit-images" type="file" accept="image/*" multiple onChange={handleImageUpload} className="spoke-file" />
+            <input id="edit-images" type="file" accept="image/*" multiple onChange={handleImageUpload} className="spoke-file" disabled={uploading} />
+            {uploading && <p className="spoke-help">Uploading images…</p>}
             <div className="spoke-image-grid">
               {form.imageUrls.map((img, i) => (
                 <div key={i} className="spoke-image-tile">
@@ -159,7 +165,7 @@ export default function EditProductModal({ product, onClose, onSaved }: Props) {
             </div>
           )}
 
-          <button onClick={handleSave} disabled={saving} className="spoke-btn spoke-btn--primary">
+          <button onClick={handleSave} disabled={saving || uploading} className="spoke-btn spoke-btn--primary">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>

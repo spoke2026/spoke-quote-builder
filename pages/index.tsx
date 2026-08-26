@@ -39,6 +39,7 @@ interface LineItem {
   qty: number;
   logos: LogoPosition[];
   category: string;
+  priceOverride: string;
 }
 
 type Tier = 'T1' | 'T2' | 'T3' | 'Indent';
@@ -51,6 +52,19 @@ function getPrice(p: Product, tier: Tier): number {
   if (tier === 'T3') return p.t3_price ?? p.t1_price ?? 0;
   if (tier === 'Indent') return p.indent_price ?? p.t1_price ?? 0;
   return p.t1_price ?? 0;
+}
+
+function overrideAmount(raw: string): number | null {
+  const cleaned = String(raw ?? '').replace(/[$,\s]/g, '');
+  if (!cleaned) return null;
+  if (cleaned === '.' || !/^\d*\.?\d*$/.test(cleaned)) return null;
+  const n = Number(cleaned);
+  if (isNaN(n) || n < 0) return null;
+  return n;
+}
+
+function unitPrice(li: LineItem, tier: Tier): number {
+  return overrideAmount(li.priceOverride) ?? getPrice(li.product, tier);
 }
 
 function fmt(n: number): string {
@@ -73,7 +87,7 @@ function thumbnailSrc(product: Product): string {
 }
 
 function lineItemTotal(li: LineItem, tier: Tier): number {
-  const unit = getPrice(li.product, tier);
+  const unit = unitPrice(li, tier);
   const logoTotal = li.logos.reduce((sum, l) => sum + (Number(l.price) || 0), 0);
   return (Number(li.qty) || 0) * (unit + logoTotal);
 }
@@ -154,7 +168,7 @@ export default function QuoteBuilder() {
   function addProduct(product: Product) {
     setLineItems(prev => {
       if (prev.some(li => li.product.id === product.id)) return prev;
-      return [...prev, { product, qty: 1, logos: [], category: '' }];
+      return [...prev, { product, qty: 1, logos: [], category: '', priceOverride: '' }];
     });
     setActiveTab('selected');
   }
@@ -197,7 +211,7 @@ export default function QuoteBuilder() {
   const totals = (() => {
     let prodSub = 0, logoSub = 0;
     lineItems.forEach(li => {
-      prodSub += (Number(li.qty) || 0) * getPrice(li.product, tier);
+      prodSub += (Number(li.qty) || 0) * unitPrice(li, tier);
       const logos = Array.isArray(li.logos) ? li.logos : [];
       logoSub += (Number(li.qty) || 0) * logos.reduce((sum, l) => sum + (Number(l.price) || 0), 0);
     });
@@ -225,7 +239,8 @@ export default function QuoteBuilder() {
   qty: li.qty,
   logos: li.logos,
   category: li.category,
-          unit_price: getPrice(li.product, tier),
+          unit_price: unitPrice(li, tier),
+          unit_price_override: overrideAmount(li.priceOverride),
           line_total: lineItemTotal(li, tier),
           product_snapshot: {
             id: li.product.id, stockCode: li.product.stock_code,
@@ -407,7 +422,7 @@ export default function QuoteBuilder() {
                       onError={e => { (e.target as HTMLImageElement).src = placeholderImg(); }} />
                     <div className="selected-info">
                       <div className="product-name">{li.product.name}</div>
-                      <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {fmt(getPrice(li.product, tier))}</div>
+                      <div className="product-meta">{li.product.spoke_sku || li.product.supplier_sku} · {tier} {fmt(getPrice(li.product, tier))}</div>
                       <div className="qty-row">
                         <label>Qty
                           <input type="number" min="1" value={li.qty}
@@ -419,8 +434,33 @@ export default function QuoteBuilder() {
                             }}
                           />
                         </label>
+                        <label>Unit price
+                          <span className="price-override-wrap">
+                            <span className="price-override-prefix">$</span>
+                            <input className="price-override-input" type="text" inputMode="decimal"
+                              placeholder={getPrice(li.product, tier).toFixed(2)}
+                              aria-label={`Unit price for ${li.product.name}, leave empty to use the ${tier} price`}
+                              value={li.priceOverride}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setLineItems(prev => prev.map((item, i) => i === idx ? { ...item, priceOverride: val } : item));
+                              }}
+                            />
+                          </span>
+                        </label>
                         <span className="line-total">{fmt(lineItemTotal(li, tier))}</span>
                       </div>
+                      {li.priceOverride.trim() !== '' && (
+                        <p className="override-note">
+                          {overrideAmount(li.priceOverride) === null
+                            ? `Enter a price of 0 or more, or clear the field to use the ${tier} price.`
+                            : `Custom price. ${tier} price is ${fmt(getPrice(li.product, tier))}.`}
+                          <button className="link-btn"
+                            onClick={() => setLineItems(prev => prev.map((item, i) => i === idx ? { ...item, priceOverride: '' } : item))}>
+                            Use {tier} price
+                          </button>
+                        </p>
+                      )}
                       <label className="category-field">
                         Category
                         <input
@@ -545,6 +585,9 @@ export default function QuoteBuilder() {
                           qty: Number(li.qty) || 1,
 logos: li.logos ?? [],
 category: li.category ?? '',
+priceOverride: li.unit_price_override === null || li.unit_price_override === undefined
+  ? ''
+  : String(li.unit_price_override),
 product: {
                             ...s,
                             t1_price: s.t1_price ?? s.t1Price ?? 0,
@@ -780,6 +823,13 @@ product: {
         .qty-row input[type="number"] { width: 68px; min-height: var(--spoke-touch-min); background: var(--spoke-white); border: 1px solid var(--spoke-mineral-24); border-radius: var(--spoke-radius); color: var(--spoke-mineral-deep); padding: 6px 8px; font-family: var(--spoke-data-font); font-size: .95rem; text-align: center; -moz-appearance: textfield; }
         .qty-row input[type="number"]::-webkit-inner-spin-button { display: none; }
         .line-total { font-family: var(--spoke-data-font); font-weight: 500; color: var(--spoke-mineral-deep); font-size: .95rem; margin-left: auto; white-space: nowrap; }
+        .price-override-wrap { display: flex; align-items: center; gap: 6px; }
+        .price-override-prefix { color: var(--spoke-mineral-80); font-size: .88rem; }
+        .price-override-input { width: 86px; min-height: var(--spoke-touch-min); background: var(--spoke-white); border: 1px solid var(--spoke-mineral-24); border-radius: var(--spoke-radius); color: var(--spoke-mineral-deep); padding: 6px 8px; font-family: var(--spoke-data-font); font-size: .95rem; font-weight: 400; text-align: center; }
+        .price-override-input::placeholder { color: var(--spoke-mineral-42); font-weight: 400; }
+        .override-note { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; font-size: .78rem; color: var(--spoke-mineral-80); }
+        .link-btn { background: none; border: none; padding: 0; font: inherit; font-weight: 650; color: var(--spoke-mineral-deep); text-decoration: underline; cursor: pointer; }
+        .link-btn:hover { color: var(--spoke-mineral); }
         .category-field { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; font-size: .78rem; font-weight: 650; color: var(--spoke-mineral-deep); }
         .category-field input { width: 100%; min-height: var(--spoke-touch-min); background: var(--spoke-white); border: 1px solid var(--spoke-mineral-24); border-radius: var(--spoke-radius); color: var(--spoke-mineral-deep); padding: 8px 10px; font-size: .9rem; font-weight: 400; }
         .category-field input::placeholder { color: var(--spoke-mineral-42); }

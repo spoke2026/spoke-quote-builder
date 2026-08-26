@@ -46,6 +46,16 @@ export function getPrice(product: NormalisedProduct, tier: PricingTier): number 
   }
 }
 
+export function resolveUnitPrice(
+  product: NormalisedProduct,
+  tier: PricingTier,
+  override?: number | null,
+): number {
+  const n = Number(override);
+  if (override !== null && override !== undefined && !isNaN(n) && n >= 0) return n;
+  return getPrice(product, tier);
+}
+
 export function cleanImageUrl(url: string): string {
   url = String(url ?? '').trim();
   if (!url) return '';

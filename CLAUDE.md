@@ -168,6 +168,12 @@ All server-side database operations use `supabaseAdmin` (service role key):
 - **Indent:** Large indent orders (separate price point)
 - **GP (Gross Profit %):** Stored but not used in UI (informational)
 - Fallback: T2/T3/Indent use T1 price if their tier is missing
+- **Per-line override:** any line item can carry a custom unit price that replaces
+  the tier price for that customer. Stored as `unit_price_override` on the line
+  item in `line_items` (JSONB, no schema change). Null or absent means use the
+  tier price. `resolveUnitPrice()` in `/lib/products.ts` is the single place that
+  decides; the builder, the summary table, the price list and the product cards
+  all go through it. Clearing the field in the builder restores the tier price.
 
 ### Line Items Storage
 Quotes store `product_snapshot` - a frozen copy of product data at quote creation time. This preserves pricing/details even if product data changes in database later.

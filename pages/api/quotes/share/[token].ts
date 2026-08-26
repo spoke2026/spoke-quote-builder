@@ -41,11 +41,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     qty: number;
     category?: string;
     logos?: { id: string; position: string; price: number }[];
+    unit_price_override?: number | null;
     product_snapshot: Partial<NormalisedProduct>;
   }) => ({
     qty:      item.qty ?? 1,
     category: item.category ?? '',
     logos:    item.logos ?? [],
+    unitPriceOverride: item.unit_price_override ?? null,
     product: {
       id: '', stockCode: '', styleCode: '', spokeSkU: '', supplierSku: '',
       supplier: 'AS Colour', description: '', shortDescription: '', size: '',

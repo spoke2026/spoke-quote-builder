@@ -55,10 +55,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const lineItems: QuoteLineItem[] = (quote.line_items ?? []).map((item: {
     qty: number;
     logo_count: number;
+    unit_price_override?: number | null;
     product_snapshot: Partial<NormalisedProduct>;
   }) => ({
     qty:       item.qty ?? 1,
     logoCount: item.logo_count ?? 1,
+    unitPriceOverride: item.unit_price_override ?? null,
     product:   {
       id: '', stockCode: '', styleCode: '', spokeSkU: '', supplierSku: '',
       supplier: 'AS Colour', description: '', size: '', colour: '',

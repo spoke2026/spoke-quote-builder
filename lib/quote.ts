@@ -59,16 +59,34 @@ function placeholderSvg(): string {
   return 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
 }
 
+/**
+ * Categories are keyed lowercase so "Hand protection" and "hand protection"
+ * collapse into one tab. That key must never reach the page — display keeps
+ * what the user typed. An entry typed entirely lowercase gets a leading
+ * capital; anything with existing capitals is left alone so acronyms like PPE
+ * survive.
+ */
+function displayCategory(raw: string): string {
+  const label = raw.trim();
+  if (!label || label !== label.toLowerCase()) return label;
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string | undefined {
   if (items.length === 0) return '';
-  const categories = Array.from(new Set(
-    items.flatMap(li =>
-      (li.category?.trim() || 'General')
-        .split(',')
-        .map(c => c.trim().toLowerCase())
-        .filter(c => c.length > 0)
-    )
-  ));
+  // key (lowercase, for grouping) -> label (as typed, for display)
+  const categoryLabels = new Map<string, string>();
+  items.forEach(li => {
+    (li.category?.trim() || 'General')
+      .split(',')
+      .map(c => c.trim())
+      .filter(c => c.length > 0)
+      .forEach(c => {
+        const key = c.toLowerCase();
+        if (!categoryLabels.has(key)) categoryLabels.set(key, displayCategory(c));
+      });
+  });
+  const categories = Array.from(categoryLabels.keys());
   const multiCategory = categories.length > 1;
 
   if (!multiCategory) {
@@ -131,7 +149,7 @@ function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summa
   const tabIds = categories.map((cat, i) => `cat-${i}`);
 
   const tabs = categories.map((cat, i) =>
-    `<button class="cat-tab${i === 0 ? ' active' : ''}" onclick="showCategory('${tabIds[i]}')" id="tab-${tabIds[i]}">${esc(cat)}</button>`
+    `<button class="cat-tab${i === 0 ? ' active' : ''}" onclick="showCategory('${tabIds[i]}')" id="tab-${tabIds[i]}">${esc(categoryLabels.get(cat) ?? cat)}</button>`
   ).join('');
 
   const sections = categories.map((cat, i) =>

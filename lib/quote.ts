@@ -61,15 +61,21 @@ function placeholderSvg(): string {
 
 /**
  * Categories are keyed lowercase so "Hand protection" and "hand protection"
- * collapse into one tab. That key must never reach the page — display keeps
- * what the user typed. An entry typed entirely lowercase gets a leading
- * capital; anything with existing capitals is left alone so acronyms like PPE
- * survive.
+ * collapse into one tab. That key must never reach the page — tabs are title
+ * cased for the customer regardless of how the category was typed.
+ *
+ * Short all-caps words are left alone so PPE does not become Ppe. Longer ones
+ * are normalised, so a category typed in caps still reads as a heading rather
+ * than shouting.
  */
+function titleCaseWord(word: string): string {
+  if (word.length <= 4 && word === word.toUpperCase() && /[A-Z]/.test(word)) return word;
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
 function displayCategory(raw: string): string {
-  const label = raw.trim();
-  if (!label || label !== label.toLowerCase()) return label;
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  // Split on spaces, hyphens and slashes so "hi-vis" reads "Hi-Vis".
+  return raw.trim().replace(/[^\s/-]+/g, titleCaseWord);
 }
 
 function buildCategoryContent(items: QuoteLineItem[], config: QuoteConfig, summaryRows: string, cards: string): string | undefined {
